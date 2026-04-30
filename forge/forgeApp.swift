@@ -1,32 +1,12 @@
-//
-//  forgeApp.swift
-//  forge
-//
-//  Created by Sourish Ghosh on 30/04/26.
-//
-
 import SwiftUI
 import SwiftData
 
 @main
-struct forgeApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
-
+struct ForgeApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            HomeView()
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(for: Project.self)
     }
 }
