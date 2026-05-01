@@ -159,7 +159,7 @@ class AIService {
         request.timeoutInterval = 30
 
         let body: [String: Any] = [
-            "model": "llama-3.3-70b-versatile",
+            "model": "openai/gpt-oss-120b",
             "messages": [
                 ["role": "system", "content": "You are Forge AI, a developer productivity advisor. Always respond with valid JSON only."],
                 ["role": "user", "content": prompt]
