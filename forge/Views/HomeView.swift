@@ -180,9 +180,33 @@ struct ProjectCard: View {
                 HStack {
                     StatusPill(status: project.status)
                     Spacer()
-                    Text(project.createdAt.formatted(date: .abbreviated, time: .omitted))
-                        .font(.system(size: 9, design: .monospaced))
-                        .foregroundColor(.white.opacity(0.2))
+                    if let deadline = project.deadline {
+                        DeadlineLabel(date: deadline)
+                    } else {
+                        Text(project.createdAt.formatted(date: .abbreviated, time: .omitted))
+                            .font(.system(size: 9, design: .monospaced))
+                            .foregroundColor(.white.opacity(0.2))
+                    }
+                }
+
+                // Tags row
+                if !project.tags.isEmpty {
+                    HStack(spacing: 4) {
+                        ForEach(project.tags.prefix(3), id: \.self) { tag in
+                            Text(tag.uppercased())
+                                .font(.system(size: 7, weight: .bold, design: .monospaced))
+                                .foregroundColor(.white.opacity(0.3))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 3)
+                                .background(Color.white.opacity(0.05))
+                                .clipShape(RoundedRectangle(cornerRadius: 3))
+                        }
+                        if project.tags.count > 3 {
+                            Text("+\(project.tags.count - 3)")
+                                .font(.system(size: 7, weight: .bold, design: .monospaced))
+                                .foregroundColor(.white.opacity(0.2))
+                        }
+                    }
                 }
             }
             .padding(.leading, 14)
@@ -221,14 +245,21 @@ struct EmptySlotCard: View {
     }
 }
 
-// MARK: - Add Project Sheet
+// MARK: - Add Project Sheet (with AI Idea Validator)
 struct AddProjectSheet: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @Environment(AIService.self) private var aiService
 
     @State private var name = ""
     @State private var tagline = ""
     @State private var priority: Priority = .medium
+
+    // Idea validation
+    @State private var validation: IdeaValidation?
+    @State private var isValidating = false
+    @State private var validationError: String?
+    @State private var showValidation = false
 
     var body: some View {
         ZStack {
@@ -254,77 +285,185 @@ struct AddProjectSheet: View {
                 }
                 .padding(.top, 36)
 
-                // Name field
-                VStack(alignment: .leading, spacing: 8) {
-                    SectionLabel(text: "NAME")
-                    TextField("what are you building?", text: $name)
-                        .font(.system(size: 14, design: .monospaced))
-                        .foregroundColor(.white)
-                        .padding(14)
-                        .background(Color.white.opacity(0.05))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
-                        )
+                if showValidation {
+                    validationView
+                } else {
+                    formView
+                }
+            }
+            .padding(.horizontal, 24)
+        }
+    }
+
+    // MARK: - Form
+
+    var formView: some View {
+        VStack(alignment: .leading, spacing: 28) {
+            // Name field
+            VStack(alignment: .leading, spacing: 8) {
+                SectionLabel(text: "NAME")
+                TextField("what are you building?", text: $name)
+                    .font(.system(size: 14, design: .monospaced))
+                    .foregroundColor(.white)
+                    .padding(14)
+                    .background(Color.white.opacity(0.05))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
+                    )
+            }
+
+            // Tagline field
+            VStack(alignment: .leading, spacing: 8) {
+                SectionLabel(text: "ONE LINE")
+                TextField("explain it in one breath", text: $tagline)
+                    .font(.system(size: 14, design: .monospaced))
+                    .foregroundColor(.white)
+                    .padding(14)
+                    .background(Color.white.opacity(0.05))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
+                    )
+            }
+
+            // Priority picker
+            VStack(alignment: .leading, spacing: 10) {
+                SectionLabel(text: "PRIORITY")
+                HStack(spacing: 10) {
+                    ForEach(Priority.allCases, id: \.self) { p in
+                        Button {
+                            Haptic.light()
+                            priority = p
+                        } label: {
+                            Text(p.rawValue.uppercased())
+                                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                .foregroundColor(priority == p ? .black : .white.opacity(0.3))
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 10)
+                                .background(priority == p ? priorityColor(p) : Color.white.opacity(0.05))
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                        .animation(.spring(response: 0.3), value: priority)
+                    }
+                }
+            }
+
+            Spacer()
+
+            // Create button
+            Button {
+                guard !name.isEmpty else {
+                    Haptic.warning()
+                    return
+                }
+                if aiService.hasKey {
+                    Haptic.medium()
+                    validateIdea()
+                } else {
+                    forgeProject()
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    if isValidating {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                            .tint(.black)
+                    }
+                    Text(isValidating ? "ANALYZING..." : (aiService.hasKey ? "IS THIS TRASH?" : "FORGE IT"))
+                        .font(.system(size: 15, weight: .black, design: .monospaced))
+                }
+                .foregroundColor(.black)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 18)
+                .background(
+                    LinearGradient(
+                        colors: [.white, Color(white: 0.85)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            .buttonStyle(ScaleButtonStyle())
+            .disabled(isValidating)
+            .padding(.bottom, 40)
+        }
+    }
+
+    // MARK: - Validation Result
+
+    var validationView: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            if let v = validation {
+                // Verdict badge
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(verdictColor(v.verdict))
+                        .frame(width: 10, height: 10)
+                    Text(v.verdict)
+                        .font(.system(size: 16, weight: .black, design: .monospaced))
+                        .foregroundColor(verdictColor(v.verdict))
                 }
 
-                // Tagline field
-                VStack(alignment: .leading, spacing: 8) {
-                    SectionLabel(text: "ONE LINE")
-                    TextField("explain it in one breath", text: $tagline)
-                        .font(.system(size: 14, design: .monospaced))
-                        .foregroundColor(.white)
-                        .padding(14)
-                        .background(Color.white.opacity(0.05))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
-                        )
-                }
+                // Roast
+                Text(v.roast)
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundColor(.white.opacity(0.55))
+                    .lineSpacing(4)
+                    .fixedSize(horizontal: false, vertical: true)
 
-                // Priority picker
-                VStack(alignment: .leading, spacing: 10) {
-                    SectionLabel(text: "PRIORITY")
-                    HStack(spacing: 10) {
-                        ForEach(Priority.allCases, id: \.self) { p in
-                            Button {
-                                Haptic.light()
-                                priority = p
-                            } label: {
-                                Text(p.rawValue.uppercased())
-                                    .font(.system(size: 11, weight: .bold, design: .monospaced))
-                                    .foregroundColor(priority == p ? .black : .white.opacity(0.3))
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 10)
-                                    .background(priority == p ? priorityColor(p) : Color.white.opacity(0.05))
-                                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                            }
-                            .buttonStyle(ScaleButtonStyle())
-                            .animation(.spring(response: 0.3), value: priority)
+                // Questions
+                VStack(alignment: .leading, spacing: 8) {
+                    SectionLabel(text: "QUESTIONS TO ANSWER")
+                    ForEach(v.questions, id: \.self) { q in
+                        HStack(alignment: .top, spacing: 8) {
+                            Text("?")
+                                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                .foregroundColor(Color(red: 1.0, green: 0.6, blue: 0.2))
+                            Text(q)
+                                .font(.system(size: 11, design: .monospaced))
+                                .foregroundColor(.white.opacity(0.4))
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                     }
                 }
 
-                Spacer()
-
-                // Create button
-                Button {
-                    guard !name.isEmpty else {
-                        Haptic.warning()
-                        return
+                // Suggestion
+                if let suggestion = v.suggestion, !suggestion.isEmpty {
+                    HStack(spacing: 8) {
+                        Image(systemName: "lightbulb.fill")
+                            .font(.system(size: 10))
+                            .foregroundColor(.yellow.opacity(0.6))
+                        Text(suggestion)
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundColor(.white.opacity(0.4))
                     }
-                    Haptic.success()
-                    let p = Project(name: name, tagline: tagline, priority: priority)
-                    context.insert(p)
-                    dismiss()
+                    .padding(12)
+                    .background(Color.yellow.opacity(0.04))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+            } else if let err = validationError {
+                Text(err)
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundColor(.red.opacity(0.6))
+            }
+
+            Spacer()
+
+            // Action buttons
+            VStack(spacing: 10) {
+                Button {
+                    forgeProject()
                 } label: {
-                    Text("FORGE IT")
-                        .font(.system(size: 15, weight: .black, design: .monospaced))
+                    Text("FORGE ANYWAY")
+                        .font(.system(size: 14, weight: .black, design: .monospaced))
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 18)
+                        .padding(.vertical, 16)
                         .background(
                             LinearGradient(
                                 colors: [.white, Color(white: 0.85)],
@@ -335,9 +474,72 @@ struct AddProjectSheet: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 .buttonStyle(ScaleButtonStyle())
-                .padding(.bottom, 40)
+
+                HStack(spacing: 10) {
+                    Button {
+                        Haptic.light()
+                        showValidation = false
+                        validation = nil
+                    } label: {
+                        Text("RETHINK")
+                            .font(.system(size: 12, weight: .bold, design: .monospaced))
+                            .foregroundColor(.white.opacity(0.4))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(Color.white.opacity(0.05))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                    .buttonStyle(ScaleButtonStyle())
+
+                    Button {
+                        Haptic.error()
+                        dismiss()
+                    } label: {
+                        Text("KILL IT")
+                            .font(.system(size: 12, weight: .bold, design: .monospaced))
+                            .foregroundColor(.red.opacity(0.6))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(Color.red.opacity(0.06))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                    .buttonStyle(ScaleButtonStyle())
+                }
             }
-            .padding(.horizontal, 24)
+            .padding(.bottom, 40)
+        }
+    }
+
+    // MARK: - Actions
+
+    func validateIdea() {
+        isValidating = true
+        validationError = nil
+        Task {
+            do {
+                validation = try await aiService.validateIdea(name: name, tagline: tagline)
+                showValidation = true
+            } catch {
+                validationError = error.localizedDescription
+                showValidation = true
+            }
+            isValidating = false
+        }
+    }
+
+    func forgeProject() {
+        Haptic.success()
+        let p = Project(name: name, tagline: tagline, priority: priority)
+        context.insert(p)
+        dismiss()
+    }
+
+    func verdictColor(_ verdict: String) -> Color {
+        switch verdict.uppercased() {
+        case "WORTH BUILDING":     return Color(red: 0.3, green: 0.9, blue: 0.4)
+        case "NEEDS MORE THOUGHT": return Color(red: 1.0, green: 0.6, blue: 0.2)
+        case "KILL IT":            return .red
+        default:                   return .white
         }
     }
 }

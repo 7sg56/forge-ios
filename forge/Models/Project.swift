@@ -28,15 +28,17 @@ class Project {
     var tags: [String] = []
     var notes: String = ""
     var deadline: Date?
+    var lastUpdatedAt: Date = Date()
 
     init(name: String, tagline: String, priority: Priority) {
-        self.id        = UUID()
-        self.name      = name
-        self.tagline   = tagline
-        self.status    = .ideating
-        self.priority  = priority
-        self.createdAt = Date()
-        self.tags      = []
-        self.notes     = ""
+        self.id            = UUID()
+        self.name          = name
+        self.tagline       = tagline
+        self.status        = .ideating
+        self.priority      = priority
+        self.createdAt     = Date()
+        self.lastUpdatedAt = Date()
+        self.tags          = []
+        self.notes         = ""
     }
 }

@@ -7,7 +7,20 @@ struct SkillDetailView: View {
 
     @Bindable var skill: SkillTrack
 
+    @Query var allSkills: [SkillTrack]
+    @Query var allProjects: [Project]
+
+    @State private var showSkillCap = false
+
     var accent: Color { skillCategoryColor(skill.category) }
+
+    var activeSkillCount: Int {
+        allSkills.filter { $0.status == .active }.count
+    }
+
+    var linkableProjects: [Project] {
+        allProjects.filter { $0.status != .killed }
+    }
 
     var body: some View {
         ZStack {
@@ -64,14 +77,21 @@ struct SkillDetailView: View {
 
                     SubtleDivider()
 
-                    // Status Pipeline
+                    // Status Pipeline with cap enforcement
                     VStack(alignment: .leading, spacing: 14) {
                         SectionLabel(text: "STATUS")
                         SkillPipeline(currentStatus: skill.status) { newStatus in
+                            // Enforce 2-active-skill cap
+                            if newStatus == .active && skill.status != .active && activeSkillCount >= 2 {
+                                Haptic.warning()
+                                showSkillCap = true
+                                return
+                            }
                             Haptic.medium()
                             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                                 skill.status = newStatus
                             }
+                            NotificationService.scheduleTarget(for: skill)
                         }
                     }
                     .padding(.vertical, 8)
@@ -82,6 +102,83 @@ struct SkillDetailView: View {
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(Color.white.opacity(0.05), lineWidth: 0.5)
                     )
+
+                    SubtleDivider()
+
+                    // MARK: - Project Linking
+                    VStack(alignment: .leading, spacing: 12) {
+                        SectionLabel(text: "LINKED PROJECT")
+                        Text("Connect this skill to a project it supports.")
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundColor(.white.opacity(0.2))
+
+                        if !skill.linkedProjectName.isEmpty {
+                            HStack(spacing: 8) {
+                                Image(systemName: "link")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(accent)
+                                Text(skill.linkedProjectName.uppercased())
+                                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                    .foregroundColor(.white.opacity(0.6))
+                                Spacer()
+                                Button {
+                                    Haptic.light()
+                                    skill.linkedProjectName = ""
+                                } label: {
+                                    Image(systemName: "xmark")
+                                        .font(.system(size: 9, weight: .bold))
+                                        .foregroundColor(.white.opacity(0.3))
+                                }
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 10)
+                            .background(accent.opacity(0.06))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(accent.opacity(0.15), lineWidth: 0.5)
+                            )
+                        }
+
+                        if linkableProjects.isEmpty {
+                            Text("// no active projects to link")
+                                .font(.system(size: 10, design: .monospaced))
+                                .foregroundColor(.white.opacity(0.1))
+                        } else {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 6) {
+                                    ForEach(linkableProjects) { project in
+                                        Button {
+                                            Haptic.light()
+                                            withAnimation(.spring(response: 0.3)) {
+                                                skill.linkedProjectName = project.name
+                                            }
+                                        } label: {
+                                            HStack(spacing: 5) {
+                                                Circle()
+                                                    .fill(priorityColor(project.priority))
+                                                    .frame(width: 5, height: 5)
+                                                Text(project.name.uppercased())
+                                                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                            }
+                                            .foregroundColor(
+                                                skill.linkedProjectName == project.name
+                                                    ? .black : .white.opacity(0.4)
+                                            )
+                                            .padding(.horizontal, 10)
+                                            .padding(.vertical, 7)
+                                            .background(
+                                                skill.linkedProjectName == project.name
+                                                    ? accent : Color.white.opacity(0.05)
+                                            )
+                                            .clipShape(RoundedRectangle(cornerRadius: 5))
+                                        }
+                                        .buttonStyle(ScaleButtonStyle())
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     SubtleDivider()
 
@@ -185,6 +282,9 @@ struct SkillDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Color.black, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
+        .sheet(isPresented: $showSkillCap) {
+            SkillCapSheet(isPresented: $showSkillCap)
+        }
     }
 
     func skillDaysAgo() -> String {

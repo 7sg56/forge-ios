@@ -29,6 +29,7 @@ class SkillTrack {
     var targetDate: Date?
     var progress: Double
     var createdAt: Date
+    var linkedProjectName: String = ""
 
     init(name: String, category: SkillCategory, notes: String = "", targetDate: Date? = nil) {
         self.id        = UUID()

@@ -43,6 +43,8 @@ struct FocusQueueView: View {
     @Query var allSkills: [SkillTrack]
 
     @State private var showSettings = false
+    @State private var showBrainDump = false
+    @State private var showWeeklyReview = false
     @State private var appeared = false
 
     var activeProjects: [Project] {
@@ -76,6 +78,7 @@ struct FocusQueueView: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 20) {
                     headerSection
+                    actionBar
                     workloadBar
                     aiOpinionCard
 
@@ -112,6 +115,12 @@ struct FocusQueueView: View {
         .sheet(isPresented: $showSettings) {
             SettingsSheet()
         }
+        .sheet(isPresented: $showBrainDump) {
+            IdeaDumpView()
+        }
+        .sheet(isPresented: $showWeeklyReview) {
+            WeeklyReviewSheet()
+        }
     }
 
     // MARK: - Header
@@ -141,6 +150,59 @@ struct FocusQueueView: View {
         }
         .padding(.horizontal, 20)
         .padding(.top, 60)
+    }
+
+    // MARK: - Action Bar (Brain Dump + Weekly Review)
+
+    var actionBar: some View {
+        HStack(spacing: 10) {
+            Button {
+                Haptic.medium()
+                showBrainDump = true
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "brain")
+                        .font(.system(size: 10, weight: .bold))
+                    Text("BRAIN DUMP")
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                }
+                .foregroundColor(Color(red: 0.75, green: 0.5, blue: 1.0))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 9)
+                .background(Color(red: 0.75, green: 0.5, blue: 1.0).opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(Color(red: 0.75, green: 0.5, blue: 1.0).opacity(0.2), lineWidth: 0.5)
+                )
+            }
+            .buttonStyle(ScaleButtonStyle())
+
+            Button {
+                Haptic.medium()
+                showWeeklyReview = true
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "calendar.badge.clock")
+                        .font(.system(size: 10, weight: .bold))
+                    Text("WEEKLY REVIEW")
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                }
+                .foregroundColor(Color(red: 0.2, green: 0.85, blue: 0.9))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 9)
+                .background(Color(red: 0.2, green: 0.85, blue: 0.9).opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(Color(red: 0.2, green: 0.85, blue: 0.9).opacity(0.2), lineWidth: 0.5)
+                )
+            }
+            .buttonStyle(ScaleButtonStyle())
+
+            Spacer()
+        }
+        .padding(.horizontal, 20)
     }
 
     // MARK: - Workload Bar
@@ -329,6 +391,17 @@ struct FocusCard: View {
                                 .foregroundColor(.white.opacity(0.3))
                         }
                     }
+                }
+
+                // Skill-project link
+                if case .skill(let s) = item, !s.linkedProjectName.isEmpty {
+                    HStack(spacing: 4) {
+                        Image(systemName: "link")
+                            .font(.system(size: 8))
+                        Text("supports \(s.linkedProjectName.uppercased())")
+                            .font(.system(size: 9, weight: .medium, design: .monospaced))
+                    }
+                    .foregroundColor(Color(red: 0.75, green: 0.5, blue: 1.0).opacity(0.55))
                 }
 
                 if let reason = aiReason {

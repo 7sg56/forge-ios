@@ -4,10 +4,18 @@ import SwiftData
 struct ProjectDetailView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @Environment(AIService.self) private var aiService
 
     @Bindable var project: Project
 
     @State private var showingKillSheet = false
+    @State private var newTag = ""
+    @State private var showDatePicker = false
+
+    // AI Kill Recommendation
+    @State private var killRec: KillRecommendation?
+    @State private var isLoadingKillRec = false
+    @State private var killRecError: String?
 
     var body: some View {
         ZStack {
@@ -44,6 +52,7 @@ struct ProjectDetailView: View {
                             Haptic.medium()
                             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                                 project.status = newStatus
+                                project.lastUpdatedAt = Date()
                             }
                         }
                     }
@@ -67,6 +76,7 @@ struct ProjectDetailView: View {
                                     Haptic.light()
                                     withAnimation(.spring(response: 0.3)) {
                                         project.priority = p
+                                        project.lastUpdatedAt = Date()
                                     }
                                 } label: {
                                     Text(p.rawValue.uppercased())
@@ -91,6 +101,158 @@ struct ProjectDetailView: View {
 
                     SubtleDivider()
 
+                    // MARK: - Deadline
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            SectionLabel(text: "DEADLINE")
+                            Spacer()
+                            if project.deadline != nil {
+                                Button {
+                                    Haptic.light()
+                                    project.deadline = nil
+                                    NotificationService.cancelNotifications(for: project.id)
+                                } label: {
+                                    Text("CLEAR")
+                                        .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                        .foregroundColor(.red.opacity(0.5))
+                                }
+                            }
+                        }
+
+                        if let deadline = project.deadline {
+                            let days = Calendar.current.dateComponents([.day], from: Date(), to: deadline).day ?? 0
+                            HStack(spacing: 10) {
+                                Image(systemName: "clock")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(days <= 7 ? .red.opacity(0.7) : .white.opacity(0.3))
+                                Text(deadline.formatted(date: .abbreviated, time: .omitted))
+                                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                                    .foregroundColor(.white.opacity(0.6))
+                                Text(days <= 0 ? "OVERDUE" : "\(days) days left")
+                                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                    .foregroundColor(days <= 3 ? .red : days <= 7 ? Color(red: 1.0, green: 0.6, blue: 0.2) : .white.opacity(0.3))
+                            }
+                        }
+
+                        Button {
+                            showDatePicker.toggle()
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: project.deadline == nil ? "calendar.badge.plus" : "calendar")
+                                    .font(.system(size: 10))
+                                Text(project.deadline == nil ? "SET DEADLINE" : "CHANGE")
+                                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                            }
+                            .foregroundColor(.white.opacity(0.35))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(Color.white.opacity(0.05))
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+
+                        if showDatePicker {
+                            DatePicker(
+                                "",
+                                selection: Binding(
+                                    get: { project.deadline ?? Date().addingTimeInterval(7 * 24 * 3600) },
+                                    set: { newDate in
+                                        project.deadline = newDate
+                                        project.lastUpdatedAt = Date()
+                                        NotificationService.scheduleDeadline(for: project)
+                                    }
+                                ),
+                                displayedComponents: .date
+                            )
+                            .datePickerStyle(.compact)
+                            .colorScheme(.dark)
+                        }
+                    }
+
+                    SubtleDivider()
+
+                    // MARK: - Tags
+                    VStack(alignment: .leading, spacing: 12) {
+                        SectionLabel(text: "TAGS")
+
+                        if !project.tags.isEmpty {
+                            FlowLayout(spacing: 6) {
+                                ForEach(project.tags, id: \.self) { tag in
+                                    HStack(spacing: 4) {
+                                        Text(tag.uppercased())
+                                            .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                        Button {
+                                            Haptic.light()
+                                            project.tags.removeAll { $0 == tag }
+                                        } label: {
+                                            Image(systemName: "xmark")
+                                                .font(.system(size: 7, weight: .bold))
+                                        }
+                                    }
+                                    .foregroundColor(.white.opacity(0.5))
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(Color.white.opacity(0.06))
+                                    .clipShape(RoundedRectangle(cornerRadius: 5))
+                                }
+                            }
+                        }
+
+                        HStack(spacing: 8) {
+                            TextField("add tag...", text: $newTag)
+                                .font(.system(size: 12, design: .monospaced))
+                                .foregroundColor(.white)
+                                .padding(10)
+                                .background(Color.white.opacity(0.04))
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
+                                )
+
+                            Button {
+                                let tag = newTag.trimmingCharacters(in: .whitespacesAndNewlines)
+                                guard !tag.isEmpty else { return }
+                                Haptic.light()
+                                if !project.tags.contains(tag) {
+                                    project.tags.append(tag)
+                                }
+                                newTag = ""
+                            } label: {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundColor(.white.opacity(0.4))
+                                    .padding(10)
+                                    .background(Color.white.opacity(0.06))
+                                    .clipShape(Circle())
+                            }
+                            .buttonStyle(ScaleButtonStyle())
+                        }
+                    }
+
+                    SubtleDivider()
+
+                    // MARK: - Notes
+                    VStack(alignment: .leading, spacing: 10) {
+                        SectionLabel(text: "NOTES")
+                        TextField("ideas, links, decisions, blockers...", text: $project.notes, axis: .vertical)
+                            .font(.system(size: 13, design: .monospaced))
+                            .foregroundColor(.white)
+                            .lineLimit(8, reservesSpace: true)
+                            .padding(14)
+                            .background(Color.white.opacity(0.04))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
+                            )
+                            .onChange(of: project.notes) {
+                                project.lastUpdatedAt = Date()
+                            }
+                    }
+
+                    SubtleDivider()
+
                     // Info row
                     HStack {
                         InfoChip(label: "CREATED", value: project.createdAt.formatted(date: .abbreviated, time: .omitted))
@@ -99,6 +261,11 @@ struct ProjectDetailView: View {
                     }
 
                     SubtleDivider()
+
+                    // MARK: - AI Kill Recommendation
+                    if project.status != .shipped && project.status != .killed {
+                        aiKillSection
+                    }
 
                     // Kill / Shipped state
                     if project.status == .shipped {
@@ -163,11 +330,119 @@ struct ProjectDetailView: View {
         }
     }
 
+    // MARK: - AI Kill Section
+
+    var aiKillSection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                HStack(spacing: 6) {
+                    Image(systemName: "brain.head.profile")
+                        .font(.system(size: 11, weight: .bold))
+                    Text("AI VERDICT")
+                        .font(.system(size: 10, weight: .heavy, design: .monospaced))
+                        .tracking(1)
+                }
+                .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0))
+
+                Spacer()
+
+                if !isLoadingKillRec {
+                    Button {
+                        Haptic.medium()
+                        fetchKillRec()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: killRec == nil ? "questionmark.circle" : "arrow.clockwise")
+                                .font(.system(size: 10, weight: .bold))
+                            Text(killRec == nil ? "SHOULD I KILL THIS?" : "RE-ANALYZE")
+                                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                        }
+                        .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.7))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                    }
+                    .buttonStyle(ScaleButtonStyle())
+                }
+            }
+
+            if isLoadingKillRec {
+                HStack(spacing: 8) {
+                    ProgressView()
+                        .scaleEffect(0.7)
+                        .tint(Color(red: 0.4, green: 0.8, blue: 1.0))
+                    Text("analyzing...")
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundColor(.white.opacity(0.25))
+                }
+            } else if let rec = killRec {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(rec.shouldKill ? .red : Color(red: 0.3, green: 0.9, blue: 0.4))
+                            .frame(width: 8, height: 8)
+                        Text(rec.verdict)
+                            .font(.system(size: 13, weight: .black, design: .monospaced))
+                            .foregroundColor(rec.shouldKill ? .red : Color(red: 0.3, green: 0.9, blue: 0.4))
+                    }
+
+                    Text(rec.reasoning)
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundColor(.white.opacity(0.5))
+                        .lineSpacing(3)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        ForEach(rec.signals, id: \.self) { signal in
+                            HStack(spacing: 6) {
+                                Text(">>")
+                                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                    .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.4))
+                                Text(signal)
+                                    .font(.system(size: 10, design: .monospaced))
+                                    .foregroundColor(.white.opacity(0.35))
+                            }
+                        }
+                    }
+                }
+            } else if let err = killRecError {
+                Text(err)
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundColor(.red.opacity(0.5))
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.03))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.1), lineWidth: 0.5)
+        )
+    }
+
+    // MARK: - Helpers
+
     func daysAgo() -> String {
         let days = Calendar.current.dateComponents([.day], from: project.createdAt, to: Date()).day ?? 0
         if days == 0 { return "today" }
         if days == 1 { return "1 day ago" }
         return "\(days) days ago"
+    }
+
+    func fetchKillRec() {
+        isLoadingKillRec = true
+        killRecError = nil
+        Task {
+            do {
+                killRec = try await aiService.killRecommendation(project: project)
+            } catch {
+                killRecError = error.localizedDescription
+            }
+            isLoadingKillRec = false
+        }
     }
 }
 
@@ -186,5 +461,44 @@ struct InfoChip: View {
                 .font(.system(size: 11, weight: .medium, design: .monospaced))
                 .foregroundColor(.white.opacity(0.5))
         }
+    }
+}
+
+// MARK: - Flow Layout (for tags)
+struct FlowLayout: Layout {
+    var spacing: CGFloat = 6
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let result = arrange(proposal: proposal, subviews: subviews)
+        return result.size
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let result = arrange(proposal: proposal, subviews: subviews)
+        for (index, position) in result.positions.enumerated() {
+            subviews[index].place(at: CGPoint(x: bounds.minX + position.x, y: bounds.minY + position.y), proposal: .unspecified)
+        }
+    }
+
+    private func arrange(proposal: ProposedViewSize, subviews: Subviews) -> (size: CGSize, positions: [CGPoint]) {
+        let maxWidth = proposal.width ?? .infinity
+        var positions: [CGPoint] = []
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var rowHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x + size.width > maxWidth && x > 0 {
+                x = 0
+                y += rowHeight + spacing
+                rowHeight = 0
+            }
+            positions.append(CGPoint(x: x, y: y))
+            rowHeight = max(rowHeight, size.height)
+            x += size.width + spacing
+        }
+
+        return (CGSize(width: maxWidth, height: y + rowHeight), positions)
     }
 }
