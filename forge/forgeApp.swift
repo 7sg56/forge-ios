@@ -3,6 +3,11 @@ import SwiftData
 
 @main
 struct ForgeApp: App {
+
+    init() {
+        NotificationService.requestPermission()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

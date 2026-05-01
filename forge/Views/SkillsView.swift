@@ -61,17 +61,55 @@ struct SkillsView: View {
 
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 20) {
-                            if !activeSkills.isEmpty {
-                                skillSection("ACTIVELY LEARNING", skills: activeSkills, startIndex: 0)
-                            }
-                            if !practicingSkills.isEmpty {
-                                skillSection("PRACTICING", skills: practicingSkills, startIndex: activeSkills.count)
-                            }
-                            if !queuedSkills.isEmpty {
-                                skillSection("QUEUED", skills: queuedSkills, startIndex: activeSkills.count + practicingSkills.count)
-                            }
-                            if !acquiredSkills.isEmpty {
-                                skillSection("ACQUIRED", skills: acquiredSkills, startIndex: activeSkills.count + practicingSkills.count + queuedSkills.count)
+                            if allSkills.isEmpty {
+                                // Empty state
+                                VStack(spacing: 16) {
+                                    Image(systemName: "flame")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(Color(red: 1.0, green: 0.5, blue: 0.2).opacity(0.15))
+                                    Text("// no skills tracked yet")
+                                        .font(.system(size: 14, weight: .medium, design: .monospaced))
+                                        .foregroundColor(.white.opacity(0.15))
+                                    Text("Activate to start tracking progress.\nWhat are you learning right now?")
+                                        .font(.system(size: 11, design: .monospaced))
+                                        .foregroundColor(.white.opacity(0.08))
+                                        .multilineTextAlignment(.center)
+                                        .lineSpacing(3)
+
+                                    Button {
+                                        Haptic.medium()
+                                        showingAdd = true
+                                    } label: {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: "plus")
+                                                .font(.system(size: 11, weight: .bold))
+                                            Text("ADD YOUR FIRST SKILL")
+                                                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                        }
+                                        .foregroundColor(.black)
+                                        .padding(.horizontal, 20)
+                                        .padding(.vertical, 12)
+                                        .background(Color(red: 1.0, green: 0.5, blue: 0.2))
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    }
+                                    .buttonStyle(ScaleButtonStyle())
+                                    .padding(.top, 8)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 60)
+                            } else {
+                                if !activeSkills.isEmpty {
+                                    skillSection("ACTIVELY LEARNING", skills: activeSkills, startIndex: 0)
+                                }
+                                if !practicingSkills.isEmpty {
+                                    skillSection("PRACTICING", skills: practicingSkills, startIndex: activeSkills.count)
+                                }
+                                if !queuedSkills.isEmpty {
+                                    skillSection("QUEUED", skills: queuedSkills, startIndex: activeSkills.count + practicingSkills.count)
+                                }
+                                if !acquiredSkills.isEmpty {
+                                    skillSection("ACQUIRED", skills: acquiredSkills, startIndex: activeSkills.count + practicingSkills.count + queuedSkills.count)
+                                }
                             }
 
                             Button {
@@ -172,6 +210,16 @@ struct SkillCard: View {
                             .font(.system(size: 9, weight: .medium, design: .monospaced))
                     }
                     .foregroundColor(days <= 7 ? .red.opacity(0.6) : .white.opacity(0.2))
+                }
+
+                if !skill.linkedProjectName.isEmpty {
+                    HStack(spacing: 4) {
+                        Image(systemName: "link")
+                            .font(.system(size: 8))
+                        Text("supports \(skill.linkedProjectName.uppercased())")
+                            .font(.system(size: 9, weight: .medium, design: .monospaced))
+                    }
+                    .foregroundColor(Color(red: 0.75, green: 0.5, blue: 1.0).opacity(0.5))
                 }
             }
             .padding(.leading, 14)
