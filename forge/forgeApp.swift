@@ -5,8 +5,8 @@ import SwiftData
 struct ForgeApp: App {
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            ContentView()
         }
-        .modelContainer(for: Project.self)
+        .modelContainer(for: [Project.self, SkillTrack.self])
     }
 }

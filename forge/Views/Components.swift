@@ -1,5 +1,7 @@
 import SwiftUI
 import UIKit
+import Foundation
+import SwiftData
 
 // MARK: - Haptics
 enum Haptic {
@@ -27,6 +29,18 @@ func statusColor(_ s: ProjectStatus) -> Color {
     case .building:   return Color(red: 0.2, green: 0.85, blue: 0.9)
     case .shipped:    return Color(red: 0.3, green: 0.9, blue: 0.4)
     case .killed:     return Color(red: 1.0, green: 0.27, blue: 0.27)
+    }
+}
+
+func skillCategoryColor(_ c: SkillCategory) -> Color {
+    switch c {
+    case .certification: return Color(red: 1.0, green: 0.84, blue: 0.2)
+    case .language:      return Color(red: 0.35, green: 0.55, blue: 1.0)
+    case .framework:     return Color(red: 0.75, green: 0.5, blue: 1.0)
+    case .devops:        return Color(red: 0.2, green: 0.85, blue: 0.9)
+    case .softSkill:     return Color(red: 1.0, green: 0.6, blue: 0.7)
+    case .design:        return Color(red: 1.0, green: 0.5, blue: 0.2)
+    case .other:         return Color.white.opacity(0.5)
     }
 }
 
