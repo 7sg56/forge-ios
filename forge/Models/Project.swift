@@ -1,7 +1,8 @@
 import SwiftData
 import Foundation
+import SwiftUI
 
-enum ProjectStatus: String, Codable, CaseIterable {
+enum ProjectStatus: String, Codable, CaseIterable, Sendable {
     case ideating   = "Ideating"
     case validating = "Validating"
     case building   = "Building"
@@ -9,7 +10,7 @@ enum ProjectStatus: String, Codable, CaseIterable {
     case killed     = "Killed"
 }
 
-enum Priority: String, Codable, CaseIterable {
+enum Priority: String, Codable, CaseIterable, Sendable {
     case high   = "High"
     case medium = "Medium"
     case low    = "Low"
@@ -24,6 +25,9 @@ class Project {
     var priority: Priority
     var createdAt: Date
     var killReason: String?
+    var tags: [String] = []
+    var notes: String = ""
+    var deadline: Date?
 
     init(name: String, tagline: String, priority: Priority) {
         self.id        = UUID()
@@ -32,5 +36,7 @@ class Project {
         self.status    = .ideating
         self.priority  = priority
         self.createdAt = Date()
+        self.tags      = []
+        self.notes     = ""
     }
 }
