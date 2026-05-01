@@ -12,6 +12,7 @@ struct ContentView: View {
                 case 0:  FocusQueueView()
                 case 1:  HomeView()
                 case 2:  SkillsView()
+                case 3:  StatsView()
                 default: FocusQueueView()
                 }
             }
@@ -32,7 +33,8 @@ struct ForgeTabBar: View {
     private let tabs: [(icon: String, label: String)] = [
         ("scope", "FOCUS"),
         ("hammer.fill", "PROJECTS"),
-        ("flame.fill", "SKILLS")
+        ("flame.fill", "SKILLS"),
+        ("chart.bar.fill", "STATS")
     ]
 
     var body: some View {
@@ -83,6 +85,7 @@ struct ForgeTabBar: View {
         case 0:  return Color(red: 0.4, green: 0.8, blue: 1.0)
         case 1:  return Color.white
         case 2:  return Color(red: 1.0, green: 0.5, blue: 0.2)
+        case 3:  return Color(red: 0.3, green: 0.9, blue: 0.4)
         default: return .white
         }
     }
