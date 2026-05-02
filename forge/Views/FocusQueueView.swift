@@ -129,25 +129,56 @@ struct FocusQueueView: View {
     // MARK: - Header
 
     var headerSection: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("ACTIVE FOCUS")
-                    .font(Font.forgeH1)
-                    .foregroundColor(ForgeTheme.onSurface)
-                    .tracking(2)
-                Text("CONCURRENT ITEMS")
-                    .font(Font.forgeCodeSm)
-                    .foregroundColor(ForgeTheme.aiAccent)
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .center) {
+                // Forge brand mark
+                HStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .stroke(ForgeTheme.aiAccent.opacity(0.3), lineWidth: 1)
+                            .frame(width: 36, height: 36)
+                        Image(systemName: "hammer.fill")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(ForgeTheme.aiAccent)
+                            .rotationEffect(.degrees(-15))
+                    }
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("FORGE")
+                            .font(.system(size: 20, weight: .black, design: .monospaced))
+                            .foregroundColor(ForgeTheme.onSurface)
+                            .tracking(6)
+                        Text("DEVELOPER GROWTH OS")
+                            .font(.system(size: 8, weight: .bold, design: .monospaced))
+                            .foregroundColor(ForgeTheme.aiAccent.opacity(0.5))
+                            .tracking(2)
+                    }
+                }
+
+                Spacer()
+
+                Button {
+                    Haptic.light()
+                    showSettings = true
+                } label: {
+                    Image(systemName: "gearshape")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white.opacity(0.4))
+                        .padding(10)
+                        .background(ForgeTheme.containerBg)
+                        .overlay(
+                            Rectangle()
+                                .stroke(ForgeTheme.border, lineWidth: 1)
+                        )
+                }
             }
-            Spacer()
-            Button {
-                Haptic.light()
-                showSettings = true
-            } label: {
-                Image(systemName: "gearshape")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white.opacity(0.4))
-            }
+
+            SubtleDivider()
+
+            Text("ACTIVE FOCUS")
+                .font(Font.forgeLabelCaps)
+                .foregroundColor(ForgeTheme.outline)
+                .tracking(3)
         }
         .padding(.horizontal, 20)
         .padding(.top, 60)
@@ -156,21 +187,21 @@ struct FocusQueueView: View {
     // MARK: - Action Bar (Brain Dump + Weekly Review)
 
     var actionBar: some View {
-        VStack(spacing: 16) {
+        HStack(spacing: 10) {
             Button {
                 Haptic.medium()
                 showBrainDump = true
             } label: {
-                HStack(spacing: 12) {
+                HStack(spacing: 8) {
                     Image(systemName: "brain")
-                        .font(.system(size: 20, weight: .medium))
-                    Text("INITIATE BRAIN DUMP")
-                        .font(Font.forgeCodeSm.weight(.bold))
+                        .font(.system(size: 16, weight: .medium))
+                    Text("BRAIN DUMP")
+                        .font(Font.forgeLabelCaps)
                         .tracking(1)
                 }
                 .foregroundColor(ForgeTheme.pureBlack)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 20)
+                .padding(.vertical, 16)
                 .background(ForgeTheme.aiAccent)
                 .overlay(
                     Rectangle()
@@ -186,16 +217,16 @@ struct FocusQueueView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "calendar")
                         .font(.system(size: 14))
-                    Text("RUN WEEKLY REVIEW")
-                        .font(Font.forgeCodeSm)
+                    Text("WEEKLY")
+                        .font(Font.forgeLabelCaps)
                 }
-                .foregroundColor(ForgeTheme.onSurface)
+                .foregroundColor(ForgeTheme.aiAccent)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .background(ForgeTheme.pureBlack)
+                .padding(.vertical, 16)
+                .background(ForgeTheme.aiAccent.opacity(0.08))
                 .overlay(
                     Rectangle()
-                        .stroke(ForgeTheme.border, lineWidth: 1)
+                        .stroke(ForgeTheme.aiAccent.opacity(0.4), lineWidth: 1)
                 )
             }
             .buttonStyle(ScaleButtonStyle())
@@ -386,7 +417,7 @@ struct FocusCard: View {
     var accent: Color {
         switch item {
         case .project(let p): return priorityColor(p.priority)
-        case .skill:          return Color(red: 0.4, green: 0.8, blue: 1.0)
+        case .skill:          return ForgeTheme.aiAccent
         }
     }
 
@@ -394,33 +425,56 @@ struct FocusCard: View {
         item.isProject ? "Project" : "Skill"
     }
 
+    var typeIcon: String {
+        item.isProject ? "folder.fill" : "terminal.fill"
+    }
+
     var body: some View {
         HStack(spacing: 0) {
+            // Colored accent left bar
+            Rectangle()
+                .fill(accent)
+                .frame(width: 4)
+
             // Rank Block
             VStack {
                 Spacer()
                 Text("\(rank)")
-                    .font(.custom("SpaceGrotesk-Bold", size: 32))
+                    .font(.system(size: 28, weight: .black, design: .monospaced))
                     .foregroundColor(rank == 1 ? accent : ForgeTheme.outlineVariant)
                 Spacer()
             }
-            .frame(width: 64)
-            .background(ForgeTheme.primaryContainerAlt) // #080808
-            .overlay(
-                Rectangle()
-                    .stroke(ForgeTheme.border, lineWidth: 1)
-                    .edgesIgnoringSafeArea(.all)
-            )
+            .frame(width: 56)
+            .background(accent.opacity(0.05))
 
             // Content Block
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .top) {
-                    Text(item.name)
-                        .font(Font.forgeH2)
-                        .foregroundColor(rank == 1 ? accent : ForgeTheme.onSurface)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(item.name)
+                            .font(Font.forgeH2)
+                            .foregroundColor(ForgeTheme.onSurface)
+
+                        // Colored type badge
+                        HStack(spacing: 6) {
+                            Image(systemName: typeIcon)
+                                .font(.system(size: 10))
+                            Text(typeLabel.uppercased())
+                                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                        }
+                        .foregroundColor(accent)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(accent.opacity(0.12))
+                        .overlay(
+                            Rectangle()
+                                .stroke(accent.opacity(0.25), lineWidth: 1)
+                        )
+                    }
+
                     Spacer()
                     
-                    // Top right label
+                    // Status label
                     HStack(spacing: 4) {
                         if rank == 1 {
                             Circle()
@@ -434,35 +488,51 @@ struct FocusCard: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(rank == 1 ? accent.opacity(0.1) : ForgeTheme.primaryContainerAlt)
-                    .border(rank == 1 ? accent.opacity(0.3) : ForgeTheme.outlineVariant)
+                    .background(rank == 1 ? accent.opacity(0.12) : ForgeTheme.containerBg)
+                    .overlay(
+                        Rectangle()
+                            .stroke(rank == 1 ? accent.opacity(0.3) : ForgeTheme.outlineVariant, lineWidth: 1)
+                    )
                 }
 
-                HStack(spacing: 16) {
-                    HStack(spacing: 6) {
-                        Image(systemName: item.isProject ? "folder" : "terminal")
-                            .font(.system(size: 12))
-                        Text(typeLabel)
-                            .font(.system(size: 12, design: .monospaced))
-                    }
-                    .foregroundColor(.white.opacity(0.4))
-
+                // Metadata row
+                HStack(spacing: 12) {
                     switch item {
                     case .project(let p):
                         if let d = p.deadline {
-                            HStack(spacing: 6) {
+                            HStack(spacing: 4) {
                                 Image(systemName: "clock")
-                                    .font(.system(size: 12))
+                                    .font(.system(size: 10))
                                 DeadlineLabel(date: d)
                             }
                         }
+                        // Priority indicator
+                        HStack(spacing: 4) {
+                            Circle()
+                                .fill(accent)
+                                .frame(width: 5, height: 5)
+                            Text(p.priority.rawValue.uppercased())
+                                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                .foregroundColor(accent.opacity(0.8))
+                        }
                     case .skill(let s):
-                        HStack(spacing: 6) {
-                            Image(systemName: "bolt")
-                                .font(.system(size: 12))
-                            Text("\(Int(s.progress * 100))% Mastery")
-                                .font(.system(size: 12, design: .monospaced))
-                                .foregroundColor(.white.opacity(0.7))
+                        // Progress bar
+                        HStack(spacing: 8) {
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    Rectangle()
+                                        .fill(accent.opacity(0.15))
+                                        .frame(height: 4)
+                                    Rectangle()
+                                        .fill(accent)
+                                        .frame(width: geo.size.width * s.progress, height: 4)
+                                }
+                            }
+                            .frame(width: 60, height: 4)
+
+                            Text("\(Int(s.progress * 100))%")
+                                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                .foregroundColor(accent.opacity(0.8))
                         }
                     }
                 }
@@ -472,19 +542,18 @@ struct FocusCard: View {
         .frame(minHeight: 100)
         .background(
             ZStack {
-                ForgeTheme.pureBlack
-                if rank == 1 {
-                    LinearGradient(
-                        colors: [accent.opacity(0.1), .clear],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                }
+                Color(hex: "0A0A0E")
+                // Subtle tinted gradient based on accent
+                LinearGradient(
+                    colors: [accent.opacity(rank == 1 ? 0.08 : 0.03), .clear],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
             }
         )
         .overlay(
             Rectangle()
-                .stroke(ForgeTheme.border, lineWidth: 1)
+                .stroke(rank == 1 ? accent.opacity(0.3) : ForgeTheme.border, lineWidth: 1)
         )
         .padding(.horizontal, 20)
     }

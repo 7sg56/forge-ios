@@ -77,8 +77,30 @@ struct PulseEffect: ViewModifier {
 // MARK: - App Background
 struct AppBackground: View {
     var body: some View {
-        ForgeTheme.pureBlack
-            .ignoresSafeArea()
+        ZStack {
+            // Base dark gradient (not flat black)
+            LinearGradient(
+                colors: [
+                    Color(hex: "050810"),  // very dark navy-black
+                    Color(hex: "0A0A0A"),  // near-black center
+                    Color(hex: "080608")   // hint of warmth at bottom
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            // Subtle radial glow from top-center
+            RadialGradient(
+                colors: [
+                    ForgeTheme.aiAccent.opacity(0.04),
+                    Color.clear
+                ],
+                center: .top,
+                startRadius: 0,
+                endRadius: 500
+            )
+        }
+        .ignoresSafeArea()
     }
 }
 

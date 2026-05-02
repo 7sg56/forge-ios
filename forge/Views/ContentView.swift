@@ -4,24 +4,134 @@ import SwiftData
 struct ContentView: View {
     @State private var selectedTab = 0
     @State private var aiService = AIService.shared
+    @State private var showSplash = true
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            Group {
-                switch selectedTab {
-                case 0:  FocusQueueView()
-                case 1:  HomeView()
-                case 2:  SkillsView()
-                case 3:  StatsView()
-                default: FocusQueueView()
+        ZStack {
+            if showSplash {
+                SplashScreen()
+                    .transition(.opacity)
+                    .zIndex(1)
+            } else {
+                mainContent
+                    .transition(.opacity)
+            }
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) {
+                withAnimation(.easeOut(duration: 0.5)) {
+                    showSplash = false
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    var mainContent: some View {
+        ZStack(alignment: .bottom) {
+            // Kill white overscroll on edges
+            Color.black.ignoresSafeArea()
+
+            // Swipeable page content
+            TabView(selection: $selectedTab) {
+                FocusQueueView()
+                    .tag(0)
+
+                HomeView()
+                    .tag(1)
+
+                SkillsView()
+                    .tag(2)
+
+                StatsView()
+                    .tag(3)
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .animation(.spring(response: 0.4, dampingFraction: 0.85), value: selectedTab)
+            .ignoresSafeArea()
+            .background(Color.black)
 
             ForgeTabBar(selectedTab: $selectedTab)
         }
+        .background(Color.black)
         .ignoresSafeArea(.keyboard)
         .environment(aiService)
+    }
+}
+
+// MARK: - Splash Screen
+
+struct SplashScreen: View {
+    @State private var logoScale: CGFloat = 0.6
+    @State private var logoOpacity: Double = 0
+    @State private var textOpacity: Double = 0
+    @State private var lineWidth: CGFloat = 0
+    @State private var subtitleOpacity: Double = 0
+
+    var body: some View {
+        ZStack {
+            ForgeTheme.pureBlack.ignoresSafeArea()
+
+            VStack(spacing: 28) {
+                // Forge icon mark
+                ZStack {
+                    // Outer glow ring
+                    Circle()
+                        .stroke(ForgeTheme.aiAccent.opacity(0.15), lineWidth: 2)
+                        .frame(width: 100, height: 100)
+                        .scaleEffect(logoScale * 1.3)
+
+                    // Inner ring
+                    Circle()
+                        .stroke(ForgeTheme.aiAccent.opacity(0.4), lineWidth: 1)
+                        .frame(width: 72, height: 72)
+
+                    // Icon
+                    Image(systemName: "hammer.fill")
+                        .font(.system(size: 32, weight: .bold))
+                        .foregroundColor(ForgeTheme.aiAccent)
+                        .rotationEffect(.degrees(-15))
+                }
+                .scaleEffect(logoScale)
+                .opacity(logoOpacity)
+
+                VStack(spacing: 12) {
+                    Text("FORGE")
+                        .font(.system(size: 36, weight: .black, design: .monospaced))
+                        .foregroundColor(ForgeTheme.onSurface)
+                        .tracking(12)
+                        .opacity(textOpacity)
+
+                    // Horizontal accent line
+                    Rectangle()
+                        .fill(ForgeTheme.aiAccent)
+                        .frame(width: lineWidth, height: 2)
+
+                    Text("DEVELOPER GROWTH OS")
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .foregroundColor(ForgeTheme.aiAccent.opacity(0.6))
+                        .tracking(4)
+                        .opacity(subtitleOpacity)
+                }
+            }
+        }
+        .onAppear {
+            withAnimation(.spring(response: 0.8, dampingFraction: 0.6)) {
+                logoScale = 1.0
+                logoOpacity = 1.0
+            }
+
+            withAnimation(.easeOut(duration: 0.6).delay(0.3)) {
+                textOpacity = 1.0
+            }
+
+            withAnimation(.easeOut(duration: 0.5).delay(0.5)) {
+                lineWidth = 80
+            }
+
+            withAnimation(.easeOut(duration: 0.5).delay(0.7)) {
+                subtitleOpacity = 1.0
+            }
+        }
     }
 }
 
