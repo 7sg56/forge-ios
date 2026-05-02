@@ -24,12 +24,12 @@ struct HomeView: View {
                         HStack(alignment: .top) {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text("ACTIVE VECTORS")
-                                    .font(.system(size: 24, weight: .bold, design: .default))
-                                    .foregroundColor(.white)
+                                    .font(Font.forgeH1)
+                                    .foregroundColor(ForgeTheme.onSurface)
                                     .tracking(2)
                                 Text("// Deploying high-leverage assets")
-                                    .font(.system(size: 12, weight: .medium, design: .monospaced))
-                                    .foregroundColor(.white.opacity(0.4))
+                                    .font(Font.forgeCodeSm)
+                                    .foregroundColor(ForgeTheme.outline)
                             }
                             Spacer()
                             Button {
@@ -38,17 +38,17 @@ struct HomeView: View {
                             } label: {
                                 HStack(spacing: 6) {
                                     Circle()
-                                        .fill(Color(red: 1.0, green: 0.27, blue: 0.27)) // error color
+                                        .fill(ForgeTheme.highPriority) // error color
                                         .frame(width: 6, height: 6)
                                     Text("KILL LOG")
-                                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                        .font(Font.forgeLabelCaps)
                                 }
-                                .foregroundColor(Color(red: 1.0, green: 0.27, blue: 0.27))
+                                .foregroundColor(ForgeTheme.highPriority)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 6)
-                                .background(Color.black)
+                                .background(ForgeTheme.pureBlack)
                                 .overlay(
-                                    Rectangle().stroke(Color(red: 1.0, green: 0.27, blue: 0.27).opacity(0.5), lineWidth: 1)
+                                    Rectangle().stroke(ForgeTheme.highPriority.opacity(0.5), lineWidth: 1)
                                 )
                             }
                             .buttonStyle(ScaleButtonStyle())
@@ -58,19 +58,19 @@ struct HomeView: View {
                         HStack(spacing: 6) {
                             ForEach(0..<3, id: \.self) { i in
                                 Rectangle()
-                                    .fill(i < activeProjects.count ? Color.white : Color(white: 0.13))
+                                    .fill(i < activeProjects.count ? ForgeTheme.onSurface : ForgeTheme.border)
                                     .frame(width: 24, height: 4)
                             }
                             Text("ACTIVE \(activeProjects.count)/3")
-                                .font(.system(size: 10, weight: .bold, design: .monospaced))
-                                .foregroundColor(.white.opacity(0.4))
+                                .font(Font.forgeLabelCaps)
+                                .foregroundColor(ForgeTheme.outline)
                                 .padding(.leading, 4)
                         }
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 60)
                     .padding(.bottom, 24)
-                    .background(Color.black)
+                    .background(ForgeTheme.pureBlack)
 
                     // Project Cards
                     ScrollView(showsIndicators: false) {
@@ -151,12 +151,12 @@ struct ProjectCard: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text(project.name)
-                        .font(.system(size: 24, weight: .bold, design: .default))
-                        .foregroundColor(.white)
+                        .font(Font.forgeH1)
+                        .foregroundColor(ForgeTheme.onSurface)
                     
                     Text(project.tagline)
-                        .font(.system(size: 14, weight: .regular, design: .monospaced))
-                        .foregroundColor(.white.opacity(0.6))
+                        .font(Font.forgeBodyMono)
+                        .foregroundColor(ForgeTheme.onSurfaceVariant)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
                 }
@@ -166,13 +166,13 @@ struct ProjectCard: View {
                     HStack(spacing: 8) {
                         ForEach(project.tags.prefix(3), id: \.self) { tag in
                             Text(tag.uppercased())
-                                .font(.system(size: 10, weight: .bold, design: .monospaced))
-                                .foregroundColor(.white.opacity(0.4))
+                                .font(Font.forgeLabelCaps)
+                                .foregroundColor(ForgeTheme.outline)
                         }
                         if project.tags.count > 3 {
                             Text("+\(project.tags.count - 3)")
-                                .font(.system(size: 10, weight: .bold, design: .monospaced))
-                                .foregroundColor(.white.opacity(0.4))
+                                .font(Font.forgeLabelCaps)
+                                .foregroundColor(ForgeTheme.outline)
                         }
                     }
                     .padding(.top, 4)
@@ -185,8 +185,8 @@ struct ProjectCard: View {
             // Bottom Bar
             HStack {
                 Text("v1.0.0") // Placeholder for version if we don't have one
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.4))
+                    .font(Font.forgeCodeSm)
+                    .foregroundColor(ForgeTheme.outline)
                 
                 Spacer()
                 
@@ -194,24 +194,24 @@ struct ProjectCard: View {
                     DeadlineLabel(date: deadline)
                 } else {
                     Text(project.createdAt.formatted(date: .abbreviated, time: .omitted))
-                        .font(.system(size: 12, design: .monospaced))
-                        .foregroundColor(.white.opacity(0.4))
+                        .font(Font.forgeCodeSm)
+                        .foregroundColor(ForgeTheme.outline)
                 }
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
-            .background(Color.black)
+            .background(ForgeTheme.pureBlack)
             .overlay(
                 Rectangle()
                     .frame(height: 1)
-                    .foregroundColor(Color(white: 0.13)),
+                    .foregroundColor(ForgeTheme.border),
                 alignment: .top
             )
         }
         .frame(minHeight: 220)
         .background(
             ZStack {
-                Color.black
+                ForgeTheme.pureBlack
                 LinearGradient(
                     colors: [accent.opacity(0.05), .clear],
                     startPoint: .topLeading,
@@ -221,7 +221,7 @@ struct ProjectCard: View {
         )
         .overlay(
             Rectangle()
-                .stroke(Color(white: 0.13), lineWidth: 1)
+                .stroke(ForgeTheme.border, lineWidth: 1)
         )
         .padding(.horizontal, 20)
     }
@@ -231,20 +231,20 @@ struct ProjectCard: View {
 struct EmptySlotCard: View {
     var body: some View {
         Rectangle()
-            .fill(Color.black)
+            .fill(ForgeTheme.pureBlack)
             .frame(height: 120)
             .overlay(
                 Rectangle()
-                    .stroke(Color(white: 0.25), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                    .stroke(ForgeTheme.outlineVariant, style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
             )
             .overlay(
                 VStack(spacing: 8) {
                     Image(systemName: "plus")
                         .font(.system(size: 16))
-                        .foregroundColor(Color(white: 0.4))
+                        .foregroundColor(ForgeTheme.outline)
                     Text("INITIALIZE VECTOR")
-                        .font(.system(size: 12, weight: .bold, design: .monospaced))
-                        .foregroundColor(Color(white: 0.4))
+                        .font(Font.forgeLabelCaps)
+                        .foregroundColor(ForgeTheme.outline)
                         .tracking(1)
                 }
             )

@@ -49,12 +49,12 @@ struct ForgeTabBar: View {
                     VStack(spacing: 4) {
                         Image(systemName: tabs[index].icon)
                             .font(.system(size: 18, weight: selectedTab == index ? .semibold : .regular))
-                            .foregroundColor(selectedTab == index ? Color(red: 0.4, green: 0.8, blue: 1.0) : .white.opacity(0.4))
+                            .foregroundColor(selectedTab == index ? ForgeTheme.aiAccent : ForgeTheme.outline)
                             .offset(y: selectedTab == index ? -2 : 0) // hover effect equivalent
 
                         Text(tabs[index].label)
-                            .font(.system(size: 10, weight: .bold, design: .monospaced))
-                            .foregroundColor(selectedTab == index ? Color(red: 0.4, green: 0.8, blue: 1.0) : .white.opacity(0.4))
+                            .font(Font.forgeLabelCaps)
+                            .foregroundColor(selectedTab == index ? ForgeTheme.aiAccent : ForgeTheme.outline)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.top, 14)
@@ -63,10 +63,10 @@ struct ForgeTabBar: View {
                 .buttonStyle(.plain)
             }
         }
-        .background(Color(red: 0.04, green: 0.04, blue: 0.04)) // #0a0a0a
+        .background(ForgeTheme.pureBlack)
         .overlay(alignment: .top) {
             Rectangle()
-                .fill(Color(white: 0.13)) // #222222
+                .fill(ForgeTheme.border)
                 .frame(height: 1)
         }
     }

@@ -91,23 +91,40 @@ struct WeeklyReviewSheet: View {
     }
 
     var promptState: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 20) {
             Image(systemName: "calendar.badge.clock")
                 .font(.system(size: 32))
                 .foregroundColor(accent.opacity(0.3))
-            Text("Tap to generate your weekly review")
-                .font(.system(size: 12, design: .monospaced))
-                .foregroundColor(.white.opacity(0.3))
+            
+            VStack(spacing: 8) {
+                Text("WEEKLY DIAGNOSTIC")
+                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                    .foregroundColor(accent)
+                Text("Compile progress, identify bottlenecks, and re-calibrate focus.")
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundColor(.white.opacity(0.4))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
+            }
+            
             Button {
+                Haptic.medium()
                 runReview()
             } label: {
-                Text("RUN REVIEW")
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
-                    .foregroundColor(.black)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                    .background(accent)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                HStack(spacing: 8) {
+                    Image(systemName: "cpu")
+                        .font(.system(size: 14))
+                    Text("EXECUTE REVIEW")
+                        .font(.system(size: 12, weight: .bold, design: .monospaced))
+                }
+                .foregroundColor(.black)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 14)
+                .background(accent)
+                .overlay(
+                    Rectangle()
+                        .stroke(accent, lineWidth: 1)
+                )
             }
             .buttonStyle(ScaleButtonStyle())
         }
@@ -135,95 +152,148 @@ struct WeeklyReviewSheet: View {
     // MARK: - Review Content
 
     func reviewContent(_ r: WeeklyReviewResponse) -> some View {
-        VStack(alignment: .leading, spacing: 22) {
-            // Summary
-            Text(r.summary)
-                .font(.system(size: 13, design: .monospaced))
-                .foregroundColor(.white.opacity(0.65))
-                .lineSpacing(4)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(16)
-                .background(accent.opacity(0.04))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+        VStack(alignment: .leading, spacing: 24) {
+            // Summary - System Diagnostic
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    Image(systemName: "cpu")
+                        .foregroundColor(accent)
+                    Text("SYSTEM DIAGNOSTIC")
+                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .foregroundColor(accent)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(accent.opacity(0.1))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(accent.opacity(0.12), lineWidth: 0.5)
+                    Rectangle().stroke(accent.opacity(0.3), lineWidth: 1)
                 )
 
-            if !r.moved.isEmpty {
-                reviewSection("MOVED FORWARD", items: r.moved, color: Color(red: 0.3, green: 0.9, blue: 0.4), icon: "arrow.up.right")
+                Text(r.summary)
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundColor(.white.opacity(0.8))
+                    .lineSpacing(6)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(16)
+                    .background(Color.black)
+                    .overlay(
+                        Rectangle().stroke(accent.opacity(0.3), lineWidth: 1)
+                    )
+                    .padding(.top, -1)
             }
 
-            if !r.stalled.isEmpty {
-                reviewSection("STALLED", items: r.stalled, color: Color(red: 1.0, green: 0.6, blue: 0.2), icon: "pause.fill")
-            }
+            VStack(spacing: 16) {
+                if !r.moved.isEmpty {
+                    reviewSection("PROGRESS DETECTED", items: r.moved, color: Color(red: 0.3, green: 0.9, blue: 0.4), icon: "arrow.up.right")
+                }
 
-            if !r.shouldKill.isEmpty {
-                reviewSection("CONSIDER KILLING", items: r.shouldKill, color: .red, icon: "xmark.circle")
-            }
+                if !r.stalled.isEmpty {
+                    reviewSection("BOTTLENECKS", items: r.stalled, color: Color(red: 1.0, green: 0.6, blue: 0.2), icon: "exclamationmark.triangle")
+                }
 
-            if !r.shouldStart.isEmpty {
-                reviewSection("SHOULD START", items: r.shouldStart, color: accent, icon: "plus.circle")
+                if !r.shouldKill.isEmpty {
+                    reviewSection("RECOMMENDED TERMINATION", items: r.shouldKill, color: .red, icon: "xmark.circle")
+                }
+
+                if !r.shouldStart.isEmpty {
+                    reviewSection("QUEUED FOR DEPLOYMENT", items: r.shouldStart, color: accent, icon: "plus.app")
+                }
             }
 
             SubtleDivider()
 
             // Coach note
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: "quote.opening")
-                    .font(.system(size: 12))
-                    .foregroundColor(accent.opacity(0.4))
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 8) {
+                    Image(systemName: "terminal")
+                        .foregroundColor(accent.opacity(0.8))
+                    Text("AI DIRECTIVE")
+                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .foregroundColor(accent.opacity(0.8))
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(white: 0.1))
+                .overlay(
+                    Rectangle().stroke(Color(white: 0.2), lineWidth: 1)
+                )
+
                 Text(r.coachNote)
-                    .font(.system(size: 12, weight: .medium, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.5))
-                    .lineSpacing(3)
-                    .italic()
+                    .font(.system(size: 13, weight: .regular, design: .monospaced))
+                    .foregroundColor(.white.opacity(0.6))
+                    .lineSpacing(4)
+                    .padding(16)
+                    .background(Color.black)
+                    .overlay(
+                        Rectangle().stroke(Color(white: 0.2), lineWidth: 1)
+                    )
+                    .padding(.top, -1)
             }
-            .padding(14)
-            .background(Color.white.opacity(0.025))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
 
             // Refresh button
             Button {
                 Haptic.medium()
                 runReview()
             } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 10, weight: .bold))
-                    Text("REFRESH")
-                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                HStack(spacing: 8) {
+                    Image(systemName: "arrow.triangle.2.circlepath")
+                        .font(.system(size: 12, weight: .bold))
+                    Text("RECALCULATE DIAGNOSTIC")
+                        .font(.system(size: 12, weight: .bold, design: .monospaced))
                 }
-                .foregroundColor(accent.opacity(0.5))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
-                .background(accent.opacity(0.06))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .foregroundColor(accent)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(accent.opacity(0.1))
+                .overlay(
+                    Rectangle()
+                        .stroke(accent.opacity(0.3), lineWidth: 1)
+                )
             }
             .buttonStyle(ScaleButtonStyle())
         }
     }
 
     func reviewSection(_ title: String, items: [String], color: Color, icon: String) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 6) {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .font(.system(size: 9, weight: .bold))
-                SectionLabel(text: title)
+                    .font(.system(size: 12, weight: .bold))
+                Text(title)
+                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .tracking(1)
             }
             .foregroundColor(color)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(color.opacity(0.1))
+            .overlay(
+                Rectangle().stroke(color.opacity(0.3), lineWidth: 1)
+            )
 
-            ForEach(items, id: \.self) { item in
-                HStack(spacing: 8) {
-                    Circle()
-                        .fill(color.opacity(0.6))
-                        .frame(width: 4, height: 4)
-                    Text(item)
-                        .font(.system(size: 11, design: .monospaced))
-                        .foregroundColor(.white.opacity(0.45))
-                        .fixedSize(horizontal: false, vertical: true)
+            VStack(alignment: .leading, spacing: 12) {
+                ForEach(items, id: \.self) { item in
+                    HStack(alignment: .top, spacing: 12) {
+                        Text("»")
+                            .font(.system(size: 14, weight: .bold, design: .monospaced))
+                            .foregroundColor(color.opacity(0.6))
+                        Text(item)
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundColor(.white.opacity(0.8))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
             }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.black)
+            .overlay(
+                Rectangle().stroke(color.opacity(0.3), lineWidth: 1)
+            )
+            .padding(.top, -1)
         }
     }
 

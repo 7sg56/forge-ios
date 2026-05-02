@@ -16,31 +16,31 @@ enum Haptic {
 // MARK: - Colors
 func priorityColor(_ p: Priority) -> Color {
     switch p {
-    case .high:   return Color(red: 1.0, green: 0.27, blue: 0.27)  // red
-    case .medium: return Color(red: 1.0, green: 0.7, blue: 0.2)    // amber
-    case .low:    return Color(red: 0.35, green: 0.55, blue: 1.0)   // blue
+    case .high:   return ForgeTheme.highPriority
+    case .medium: return ForgeTheme.mediumPriority
+    case .low:    return ForgeTheme.lowPriority
     }
 }
 
 func statusColor(_ s: ProjectStatus) -> Color {
     switch s {
-    case .ideating:   return Color(red: 1.0, green: 0.84, blue: 0.2)
-    case .validating: return Color(red: 0.75, green: 0.5, blue: 1.0)
-    case .building:   return Color(red: 0.2, green: 0.85, blue: 0.9)
-    case .shipped:    return Color(red: 0.3, green: 0.9, blue: 0.4)
-    case .killed:     return Color(red: 1.0, green: 0.27, blue: 0.27)
+    case .ideating:   return ForgeTheme.tertiary
+    case .validating: return ForgeTheme.secondary
+    case .building:   return ForgeTheme.aiAccent
+    case .shipped:    return ForgeTheme.success
+    case .killed:     return ForgeTheme.error
     }
 }
 
 func skillCategoryColor(_ c: SkillCategory) -> Color {
     switch c {
-    case .certification: return Color(red: 1.0, green: 0.84, blue: 0.2)
-    case .language:      return Color(red: 0.35, green: 0.55, blue: 1.0)
-    case .framework:     return Color(red: 0.75, green: 0.5, blue: 1.0)
-    case .devops:        return Color(red: 0.2, green: 0.85, blue: 0.9)
-    case .softSkill:     return Color(red: 1.0, green: 0.6, blue: 0.7)
-    case .design:        return Color(red: 1.0, green: 0.5, blue: 0.2)
-    case .other:         return Color.white.opacity(0.5)
+    case .certification: return ForgeTheme.tertiary
+    case .language:      return ForgeTheme.lowPriority
+    case .framework:     return ForgeTheme.secondary
+    case .devops:        return ForgeTheme.aiAccent
+    case .softSkill:     return ForgeTheme.secondaryContainer
+    case .design:        return ForgeTheme.mediumPriority
+    case .other:         return ForgeTheme.onSurfaceVariant.opacity(0.5)
     }
 }
 
@@ -77,7 +77,7 @@ struct PulseEffect: ViewModifier {
 // MARK: - App Background
 struct AppBackground: View {
     var body: some View {
-        Color.black
+        ForgeTheme.pureBlack
             .ignoresSafeArea()
     }
 }

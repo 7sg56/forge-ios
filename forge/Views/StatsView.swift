@@ -50,12 +50,12 @@ struct StatsView: View {
                     // Header
                     VStack(alignment: .leading, spacing: 6) {
                         Text("STATS")
-                            .font(.system(size: 24, weight: .bold, design: .default)) // Space Grotesk equivalent
-                            .foregroundColor(.white)
+                            .font(Font.forgeH1)
+                            .foregroundColor(ForgeTheme.onSurface)
                             .tracking(2)
                         Text(daysSinceStart > 0 ? "day \(daysSinceStart) of building" : "just getting started")
-                            .font(.system(size: 12, weight: .medium, design: .monospaced)) // JetBrains Mono
-                            .foregroundColor(.white.opacity(0.4))
+                            .font(Font.forgeCodeSm)
+                            .foregroundColor(ForgeTheme.outline)
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 60)
@@ -66,7 +66,7 @@ struct StatsView: View {
                             StatBlock(
                                 value: "\(shipped.count)",
                                 label: "SHIPPED",
-                                color: Color(red: 0.13, green: 0.77, blue: 0.37), // #22C55E
+                                color: ForgeTheme.success,
                                 icon: "checkmark.seal.fill",
                                 index: 0,
                                 appeared: appeared
@@ -74,7 +74,7 @@ struct StatsView: View {
                             StatBlock(
                                 value: "\(killed.count)",
                                 label: "KILLED",
-                                color: Color(red: 0.94, green: 0.27, blue: 0.27), // #EF4444
+                                color: ForgeTheme.highPriority,
                                 icon: "xmark.circle.fill",
                                 index: 1,
                                 appeared: appeared
@@ -83,7 +83,7 @@ struct StatsView: View {
                         StatBlock(
                             value: "\(acquired.count)",
                             label: "ACQUIRED",
-                            color: Color(red: 0.98, green: 0.45, blue: 0.09), // #F97316
+                            color: ForgeTheme.mediumPriority,
                             icon: "flame.fill",
                             index: 2,
                             appeared: appeared
@@ -100,9 +100,9 @@ struct StatsView: View {
                             .padding(.horizontal, 20)
 
                         VStack(spacing: 8) {
-                            StatRow(label: "Active projects", value: "\(active.count)", max: "3", color: .white)
-                            StatRow(label: "Skills learning", value: "\(learning.count)", max: "2", color: Color(red: 0.22, green: 0.74, blue: 0.97)) // sky-400
-                            StatRow(label: "Total tracked", value: "\(totalItems)", max: nil, color: .white.opacity(0.5))
+                            StatRow(label: "Active projects", value: "\(active.count)", max: "3", color: ForgeTheme.onSurface)
+                            StatRow(label: "Skills learning", value: "\(learning.count)", max: "2", color: ForgeTheme.aiAccent)
+                            StatRow(label: "Total tracked", value: "\(totalItems)", max: nil, color: ForgeTheme.onSurfaceVariant.opacity(0.5))
                         }
                         .padding(.horizontal, 20)
                     }
@@ -119,9 +119,9 @@ struct StatsView: View {
                             .padding(.horizontal, 20)
 
                         HStack(spacing: 12) {
-                            RateCard(label: "SHIP RATE", value: shipRate, color: Color(red: 0.13, green: 0.77, blue: 0.37))
-                            RateCard(label: "KILL RATE", value: killRate, color: Color(red: 0.94, green: 0.27, blue: 0.27))
-                            RateCard(label: "AVG SKILL", value: avgProgress, color: Color(red: 0.98, green: 0.45, blue: 0.09))
+                            RateCard(label: "SHIP RATE", value: shipRate, color: ForgeTheme.success)
+                            RateCard(label: "KILL RATE", value: killRate, color: ForgeTheme.highPriority)
+                            RateCard(label: "AVG SKILL", value: avgProgress, color: ForgeTheme.mediumPriority)
                         }
                         .padding(.horizontal, 20)
                     }
@@ -157,11 +157,11 @@ struct StatsView: View {
                                 .font(.system(size: 36))
                                 .foregroundColor(.white.opacity(0.06))
                             Text("// nothing to measure yet")
-                                .font(.system(size: 13, design: .monospaced))
-                                .foregroundColor(.white.opacity(0.12))
+                                .font(Font.forgeBodyMono)
+                                .foregroundColor(ForgeTheme.outline)
                             Text("add projects or skills to see\nyour momentum stats")
-                                .font(.system(size: 11, design: .monospaced))
-                                .foregroundColor(.white.opacity(0.06))
+                                .font(Font.forgeCodeSm)
+                                .foregroundColor(ForgeTheme.outlineVariant)
                                 .multilineTextAlignment(.center)
                         }
                         .frame(maxWidth: .infinity)
@@ -188,13 +188,13 @@ struct StatsView: View {
     var milestones: [Milestone] {
         var list: [Milestone] = []
         for p in shipped {
-            list.append(Milestone(name: p.name, type: "SHIPPED", date: p.lastUpdatedAt, color: Color(red: 0.13, green: 0.77, blue: 0.37), icon: "checkmark.seal.fill"))
+            list.append(Milestone(name: p.name, type: "SHIPPED", date: p.lastUpdatedAt, color: ForgeTheme.success, icon: "checkmark.seal.fill"))
         }
         for p in killed {
-            list.append(Milestone(name: p.name, type: "KILLED", date: p.lastUpdatedAt, color: Color(red: 0.94, green: 0.27, blue: 0.27), icon: "xmark.circle.fill"))
+            list.append(Milestone(name: p.name, type: "KILLED", date: p.lastUpdatedAt, color: ForgeTheme.highPriority, icon: "xmark.circle.fill"))
         }
         for s in acquired {
-            list.append(Milestone(name: s.name, type: "ACQUIRED", date: s.createdAt, color: Color(red: 0.98, green: 0.45, blue: 0.09), icon: "flame.fill"))
+            list.append(Milestone(name: s.name, type: "ACQUIRED", date: s.createdAt, color: ForgeTheme.mediumPriority, icon: "flame.fill"))
         }
         return list.sorted { $0.date > $1.date }
     }
@@ -215,12 +215,12 @@ struct StatBlock: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(value)
-                        .font(.system(size: 48, weight: .bold, design: .default))
-                        .foregroundColor(.white)
+                        .font(.custom("SpaceGrotesk-Bold", size: 48))
+                        .foregroundColor(ForgeTheme.onSurface)
                         .tracking(-2)
 
                     Text(label)
-                        .font(.system(size: 12, weight: .medium, design: .monospaced))
+                        .font(Font.forgeCodeSm)
                         .foregroundColor(color)
                         .tracking(1)
                 }
@@ -234,7 +234,7 @@ struct StatBlock: View {
         .frame(maxWidth: .infinity, minHeight: 120, alignment: .topLeading)
         .background(
             ZStack {
-                Color.black
+                ForgeTheme.pureBlack
                 LinearGradient(
                     colors: [color.opacity(0.08), .clear],
                     startPoint: .topLeading,
@@ -244,7 +244,7 @@ struct StatBlock: View {
         )
         .overlay(
             Rectangle()
-                .stroke(Color(white: 0.13), lineWidth: 1) // border-[#222222]
+                .stroke(ForgeTheme.border, lineWidth: 1) // border-[#222222]
         )
         .opacity(appeared ? 1 : 0)
         .offset(y: appeared ? 0 : 20)
@@ -263,30 +263,30 @@ struct StatRow: View {
     var body: some View {
         HStack {
             Text(label)
-                .font(.system(size: 14, design: .monospaced))
-                .foregroundColor(.white.opacity(0.6))
+                .font(Font.forgeBodyMono)
+                .foregroundColor(ForgeTheme.onSurfaceVariant)
             Spacer()
             if let max = max {
                 HStack(spacing: 2) {
                     Text(value)
-                        .font(.system(size: 14, weight: .bold, design: .monospaced))
+                        .font(Font.forgeBodyMono.weight(.bold))
                         .foregroundColor(color)
                     Text("/\(max)")
-                        .font(.system(size: 14, weight: .bold, design: .monospaced))
-                        .foregroundColor(.white.opacity(0.4))
+                        .font(Font.forgeBodyMono.weight(.bold))
+                        .foregroundColor(ForgeTheme.outline)
                 }
             } else {
                 Text(value)
-                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                    .font(Font.forgeBodyMono.weight(.bold))
                     .foregroundColor(color)
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
-        .background(Color.black)
+        .background(ForgeTheme.pureBlack)
         .overlay(
             Rectangle()
-                .stroke(Color(white: 0.13), lineWidth: 1)
+                .stroke(ForgeTheme.border, lineWidth: 1)
         )
     }
 }
@@ -308,22 +308,22 @@ struct RateCard: View {
                     .stroke(color, style: StrokeStyle(lineWidth: 4, lineCap: .square)) // technical square line cap
                     .rotationEffect(.degrees(-90))
                 Text("\(value)%")
-                    .font(.system(size: 14, weight: .bold, design: .monospaced))
-                    .foregroundColor(.white)
+                    .font(Font.forgeBodyMono.weight(.bold))
+                    .foregroundColor(ForgeTheme.onSurface)
             }
             .frame(width: 56, height: 56)
 
             Text(label)
-                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .font(Font.forgeLabelCaps)
                 .foregroundColor(color)
                 .tracking(1)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 20)
-        .background(Color.black)
+        .background(ForgeTheme.pureBlack)
         .overlay(
             Rectangle()
-                .stroke(Color(white: 0.13), lineWidth: 1)
+                .stroke(ForgeTheme.border, lineWidth: 1)
         )
     }
 }
@@ -345,7 +345,7 @@ struct MilestoneRow: View {
                 
                 if !isLast {
                     Rectangle()
-                        .fill(Color(white: 0.13))
+                        .fill(ForgeTheme.border)
                         .frame(width: 2)
                         .padding(.vertical, 4)
                 }
@@ -354,11 +354,11 @@ struct MilestoneRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
                     Text(milestone.name)
-                        .font(.system(size: 14, weight: .bold, design: .default))
-                        .foregroundColor(.white)
+                        .font(Font.forgeH2) // Using H2 for the bold name, maybe bodyMono
+                        .foregroundColor(ForgeTheme.onSurface)
                     
                     Text(milestone.type)
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .font(Font.forgeLabelCaps)
                         .foregroundColor(milestone.color)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
@@ -369,8 +369,8 @@ struct MilestoneRow: View {
                 }
                 
                 Text(milestone.date.formatted(date: .abbreviated, time: .omitted))
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.4))
+                    .font(Font.forgeCodeSm)
+                    .foregroundColor(ForgeTheme.outline)
             }
             .padding(.bottom, 24)
 

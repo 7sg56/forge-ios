@@ -86,7 +86,7 @@ struct FocusQueueView: View {
                         emptyState
                     } else {
                         VStack(alignment: .leading, spacing: 12) {
-                            SectionLabel(text: "FOCUS QUEUE")
+                            SectionLabel(text: "ACTIVE FOCUS")
                                 .padding(.horizontal, 20)
 
                             VStack(spacing: 8) {
@@ -131,13 +131,13 @@ struct FocusQueueView: View {
     var headerSection: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("FOCUS QUEUE")
-                    .font(.system(size: 24, weight: .bold, design: .default))
-                    .foregroundColor(.white)
+                Text("ACTIVE FOCUS")
+                    .font(Font.forgeH1)
+                    .foregroundColor(ForgeTheme.onSurface)
                     .tracking(2)
-                Text("AI-RANKED")
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
-                    .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0)) // primary-container
+                Text("CONCURRENT ITEMS")
+                    .font(Font.forgeCodeSm)
+                    .foregroundColor(ForgeTheme.aiAccent)
             }
             Spacer()
             Button {
@@ -156,24 +156,25 @@ struct FocusQueueView: View {
     // MARK: - Action Bar (Brain Dump + Weekly Review)
 
     var actionBar: some View {
-        HStack(spacing: 12) {
+        VStack(spacing: 16) {
             Button {
                 Haptic.medium()
                 showBrainDump = true
             } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "plus.app")
-                        .font(.system(size: 14))
-                    Text("BRAIN DUMP")
-                        .font(.system(size: 12, weight: .bold, design: .monospaced))
+                HStack(spacing: 12) {
+                    Image(systemName: "brain")
+                        .font(.system(size: 20, weight: .medium))
+                    Text("INITIATE BRAIN DUMP")
+                        .font(Font.forgeCodeSm.weight(.bold))
+                        .tracking(1)
                 }
-                .foregroundColor(.white)
+                .foregroundColor(ForgeTheme.pureBlack)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .background(Color.black)
+                .padding(.vertical, 20)
+                .background(ForgeTheme.aiAccent)
                 .overlay(
                     Rectangle()
-                        .stroke(Color(white: 0.25), lineWidth: 1)
+                        .stroke(ForgeTheme.aiAccent, lineWidth: 1)
                 )
             }
             .buttonStyle(ScaleButtonStyle())
@@ -182,19 +183,19 @@ struct FocusQueueView: View {
                 Haptic.medium()
                 showWeeklyReview = true
             } label: {
-                HStack(spacing: 6) {
+                HStack(spacing: 8) {
                     Image(systemName: "calendar")
                         .font(.system(size: 14))
-                    Text("WEEKLY REVIEW")
-                        .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    Text("RUN WEEKLY REVIEW")
+                        .font(Font.forgeCodeSm)
                 }
-                .foregroundColor(.black)
+                .foregroundColor(ForgeTheme.onSurface)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
-                .background(Color(red: 0.4, green: 0.8, blue: 1.0))
+                .background(ForgeTheme.pureBlack)
                 .overlay(
                     Rectangle()
-                        .stroke(Color(red: 0.4, green: 0.8, blue: 1.0), lineWidth: 1)
+                        .stroke(ForgeTheme.border, lineWidth: 1)
                 )
             }
             .buttonStyle(ScaleButtonStyle())
@@ -206,12 +207,12 @@ struct FocusQueueView: View {
 
     var workloadBar: some View {
         HStack(spacing: 16) {
-            WorkloadChip(label: "PROJECTS", count: activeProjects.count, max: 3, color: .white)
-            WorkloadChip(label: "SKILLS", count: activeSkills.filter { $0.status == .active }.count, max: 2, color: Color(red: 0.4, green: 0.8, blue: 1.0))
+            WorkloadChip(label: "PROJECTS", count: activeProjects.count, max: 3, color: ForgeTheme.onSurface)
+            WorkloadChip(label: "SKILLS", count: activeSkills.filter { $0.status == .active }.count, max: 2, color: ForgeTheme.aiAccent)
             Spacer()
             Text("\(focusItems.count) active")
-                .font(.system(size: 12, design: .monospaced))
-                .foregroundColor(.white.opacity(0.4))
+                .font(Font.forgeCodeSm)
+                .foregroundColor(ForgeTheme.outline)
         }
         .padding(.horizontal, 20)
     }
@@ -231,16 +232,16 @@ struct FocusQueueView: View {
                         Image(systemName: "sparkles")
                             .font(.system(size: 14))
                         Text("AI STRATEGY INTEL")
-                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                            .font(Font.forgeLabelCaps)
                             .tracking(2)
                     }
-                    .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0))
+                    .foregroundColor(ForgeTheme.aiAccent)
 
                     Spacer()
 
                     Image(systemName: isAIOpinionExpanded ? "chevron.up" : "chevron.down")
                         .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.6))
+                        .foregroundColor(ForgeTheme.aiAccent.opacity(0.6))
                 }
             }
             .buttonStyle(.plain)
@@ -252,8 +253,8 @@ struct FocusQueueView: View {
                     }
                 } label: {
                     Text(analysis.opinion)
-                        .font(.system(size: 13, design: .monospaced))
-                        .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.8))
+                        .font(Font.forgeBodyMono)
+                        .foregroundColor(ForgeTheme.aiAccent.opacity(0.8))
                         .lineSpacing(6)
                         .lineLimit(isAIOpinionExpanded ? nil : 2)
                         .multilineTextAlignment(.leading)
@@ -275,7 +276,7 @@ struct FocusQueueView: View {
                         if aiService.isLoading {
                             ProgressView()
                                 .scaleEffect(0.7)
-                                .tint(Color(red: 0.4, green: 0.8, blue: 1.0))
+                                .tint(ForgeTheme.aiAccent)
                         } else {
                             Button {
                                 Haptic.medium()
@@ -285,12 +286,12 @@ struct FocusQueueView: View {
                                     Image(systemName: "arrow.triangle.2.circlepath")
                                         .font(.system(size: 10, weight: .bold))
                                     Text("RE-ANALYZE")
-                                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                        .font(Font.forgeLabelCaps)
                                 }
-                                .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0))
+                                .foregroundColor(ForgeTheme.aiAccent)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
-                                .background(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.1))
+                                .background(ForgeTheme.aiAccent.opacity(0.1))
                             }
                             .buttonStyle(ScaleButtonStyle())
                         }
@@ -341,10 +342,10 @@ struct FocusQueueView: View {
             }
         }
         .padding(20)
-        .background(Color.black)
+        .background(ForgeTheme.pureBlack)
         .overlay(
             Rectangle()
-                .stroke(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.5), lineWidth: 1)
+                .stroke(ForgeTheme.aiAccent.opacity(0.5), lineWidth: 1)
         )
         .padding(.horizontal, 20)
     }
@@ -359,7 +360,7 @@ struct FocusQueueView: View {
             Text("// nothing to focus on")
                 .font(.system(size: 13, design: .monospaced))
                 .foregroundColor(.white.opacity(0.12))
-            Text("add projects or skills to see\nyour priority queue")
+            Text("add projects or skills to see\nyour concurrent vectors")
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundColor(.white.opacity(0.06))
                 .multilineTextAlignment(.center)
@@ -399,15 +400,15 @@ struct FocusCard: View {
             VStack {
                 Spacer()
                 Text("\(rank)")
-                    .font(.system(size: 32, weight: .bold, design: .default))
-                    .foregroundColor(rank == 1 ? accent : .white.opacity(0.3))
+                    .font(.custom("SpaceGrotesk-Bold", size: 32))
+                    .foregroundColor(rank == 1 ? accent : ForgeTheme.outlineVariant)
                 Spacer()
             }
             .frame(width: 64)
-            .background(Color(white: 0.04)) // bg-surface-container-lowest
+            .background(ForgeTheme.primaryContainerAlt) // #080808
             .overlay(
                 Rectangle()
-                    .stroke(Color(white: 0.13), lineWidth: 1)
+                    .stroke(ForgeTheme.border, lineWidth: 1)
                     .edgesIgnoringSafeArea(.all)
             )
 
@@ -415,8 +416,8 @@ struct FocusCard: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .top) {
                     Text(item.name)
-                        .font(.system(size: 18, weight: .bold, design: .default))
-                        .foregroundColor(rank == 1 ? accent : .white)
+                        .font(Font.forgeH2)
+                        .foregroundColor(rank == 1 ? accent : ForgeTheme.onSurface)
                     Spacer()
                     
                     // Top right label
@@ -427,14 +428,14 @@ struct FocusCard: View {
                                 .frame(width: 6, height: 6)
                                 .modifier(PulseEffect())
                         }
-                        Text(rank == 1 ? "LIVE" : "QUEUED")
-                            .font(.system(size: 10, weight: .bold, design: .monospaced))
-                            .foregroundColor(rank == 1 ? accent : .white.opacity(0.4))
+                        Text(rank == 1 ? "LIVE" : "TRACKED")
+                            .font(Font.forgeLabelCaps)
+                            .foregroundColor(rank == 1 ? accent : ForgeTheme.outline)
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(rank == 1 ? accent.opacity(0.1) : Color(white: 0.13))
-                    .border(rank == 1 ? accent.opacity(0.3) : Color(white: 0.25))
+                    .background(rank == 1 ? accent.opacity(0.1) : ForgeTheme.primaryContainerAlt)
+                    .border(rank == 1 ? accent.opacity(0.3) : ForgeTheme.outlineVariant)
                 }
 
                 HStack(spacing: 16) {
@@ -471,7 +472,7 @@ struct FocusCard: View {
         .frame(minHeight: 100)
         .background(
             ZStack {
-                Color.black
+                ForgeTheme.pureBlack
                 if rank == 1 {
                     LinearGradient(
                         colors: [accent.opacity(0.1), .clear],
@@ -483,7 +484,7 @@ struct FocusCard: View {
         )
         .overlay(
             Rectangle()
-                .stroke(Color(white: 0.13), lineWidth: 1)
+                .stroke(ForgeTheme.border, lineWidth: 1)
         )
         .padding(.horizontal, 20)
     }
