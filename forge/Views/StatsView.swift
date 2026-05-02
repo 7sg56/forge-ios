@@ -43,44 +43,47 @@ struct StatsView: View {
 
     var body: some View {
         ZStack {
-            AppBackground(tint: Color(red: 0.04, green: 0.08, blue: 0.06))
+            AppBackground()
 
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
                     // Header
                     VStack(alignment: .leading, spacing: 6) {
                         Text("STATS")
-                            .font(.system(size: 28, weight: .black, design: .monospaced))
+                            .font(.system(size: 24, weight: .bold, design: .default)) // Space Grotesk equivalent
                             .foregroundColor(.white)
+                            .tracking(2)
                         Text(daysSinceStart > 0 ? "day \(daysSinceStart) of building" : "just getting started")
-                            .font(.system(size: 11, weight: .medium, design: .monospaced))
-                            .foregroundColor(.white.opacity(0.2))
+                            .font(.system(size: 12, weight: .medium, design: .monospaced)) // JetBrains Mono
+                            .foregroundColor(.white.opacity(0.4))
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 60)
 
-                    // Primary metrics
-                    HStack(spacing: 12) {
-                        StatBlock(
-                            value: "\(shipped.count)",
-                            label: "SHIPPED",
-                            color: Color(red: 0.3, green: 0.9, blue: 0.4),
-                            icon: "checkmark.seal.fill",
-                            index: 0,
-                            appeared: appeared
-                        )
-                        StatBlock(
-                            value: "\(killed.count)",
-                            label: "KILLED",
-                            color: .red,
-                            icon: "xmark.circle.fill",
-                            index: 1,
-                            appeared: appeared
-                        )
+                    // Primary metrics (Bento Grid)
+                    VStack(spacing: 12) {
+                        HStack(spacing: 12) {
+                            StatBlock(
+                                value: "\(shipped.count)",
+                                label: "SHIPPED",
+                                color: Color(red: 0.13, green: 0.77, blue: 0.37), // #22C55E
+                                icon: "checkmark.seal.fill",
+                                index: 0,
+                                appeared: appeared
+                            )
+                            StatBlock(
+                                value: "\(killed.count)",
+                                label: "KILLED",
+                                color: Color(red: 0.94, green: 0.27, blue: 0.27), // #EF4444
+                                icon: "xmark.circle.fill",
+                                index: 1,
+                                appeared: appeared
+                            )
+                        }
                         StatBlock(
                             value: "\(acquired.count)",
                             label: "ACQUIRED",
-                            color: Color(red: 1.0, green: 0.5, blue: 0.2),
+                            color: Color(red: 0.98, green: 0.45, blue: 0.09), // #F97316
                             icon: "flame.fill",
                             index: 2,
                             appeared: appeared
@@ -98,7 +101,7 @@ struct StatsView: View {
 
                         VStack(spacing: 8) {
                             StatRow(label: "Active projects", value: "\(active.count)", max: "3", color: .white)
-                            StatRow(label: "Skills learning", value: "\(learning.count)", max: "2", color: Color(red: 0.2, green: 0.85, blue: 0.9))
+                            StatRow(label: "Skills learning", value: "\(learning.count)", max: "2", color: Color(red: 0.22, green: 0.74, blue: 0.97)) // sky-400
                             StatRow(label: "Total tracked", value: "\(totalItems)", max: nil, color: .white.opacity(0.5))
                         }
                         .padding(.horizontal, 20)
@@ -116,9 +119,9 @@ struct StatsView: View {
                             .padding(.horizontal, 20)
 
                         HStack(spacing: 12) {
-                            RateCard(label: "SHIP RATE", value: shipRate, color: Color(red: 0.3, green: 0.9, blue: 0.4))
-                            RateCard(label: "KILL RATE", value: killRate, color: .red)
-                            RateCard(label: "AVG SKILL", value: avgProgress, color: Color(red: 1.0, green: 0.5, blue: 0.2))
+                            RateCard(label: "SHIP RATE", value: shipRate, color: Color(red: 0.13, green: 0.77, blue: 0.37))
+                            RateCard(label: "KILL RATE", value: killRate, color: Color(red: 0.94, green: 0.27, blue: 0.27))
+                            RateCard(label: "AVG SKILL", value: avgProgress, color: Color(red: 0.98, green: 0.45, blue: 0.09))
                         }
                         .padding(.horizontal, 20)
                     }
@@ -135,9 +138,9 @@ struct StatsView: View {
                             SectionLabel(text: "MILESTONES")
                                 .padding(.horizontal, 20)
 
-                            VStack(spacing: 6) {
-                                ForEach(milestones.prefix(10), id: \.id) { m in
-                                    MilestoneRow(milestone: m)
+                            VStack(spacing: 0) {
+                                ForEach(Array(milestones.prefix(10).enumerated()), id: \.element.id) { index, m in
+                                    MilestoneRow(milestone: m, isLast: index == milestones.prefix(10).count - 1)
                                 }
                             }
                             .padding(.horizontal, 20)
@@ -185,13 +188,13 @@ struct StatsView: View {
     var milestones: [Milestone] {
         var list: [Milestone] = []
         for p in shipped {
-            list.append(Milestone(name: p.name, type: "SHIPPED", date: p.lastUpdatedAt, color: Color(red: 0.3, green: 0.9, blue: 0.4), icon: "checkmark.seal.fill"))
+            list.append(Milestone(name: p.name, type: "SHIPPED", date: p.lastUpdatedAt, color: Color(red: 0.13, green: 0.77, blue: 0.37), icon: "checkmark.seal.fill"))
         }
         for p in killed {
-            list.append(Milestone(name: p.name, type: "KILLED", date: p.lastUpdatedAt, color: .red, icon: "xmark.circle.fill"))
+            list.append(Milestone(name: p.name, type: "KILLED", date: p.lastUpdatedAt, color: Color(red: 0.94, green: 0.27, blue: 0.27), icon: "xmark.circle.fill"))
         }
         for s in acquired {
-            list.append(Milestone(name: s.name, type: "ACQUIRED", date: s.createdAt, color: Color(red: 1.0, green: 0.5, blue: 0.2), icon: "flame.fill"))
+            list.append(Milestone(name: s.name, type: "ACQUIRED", date: s.createdAt, color: Color(red: 0.98, green: 0.45, blue: 0.09), icon: "flame.fill"))
         }
         return list.sorted { $0.date > $1.date }
     }
@@ -208,29 +211,40 @@ struct StatBlock: View {
     let appeared: Bool
 
     var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.system(size: 16))
-                .foregroundColor(color)
+        VStack(spacing: 0) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(value)
+                        .font(.system(size: 48, weight: .bold, design: .default))
+                        .foregroundColor(.white)
+                        .tracking(-2)
 
-            Text(value)
-                .font(.system(size: 32, weight: .black, design: .monospaced))
-                .foregroundColor(.white)
-
-            Text(label)
-                .font(.system(size: 8, weight: .heavy, design: .monospaced))
-                .foregroundColor(color.opacity(0.7))
-                .tracking(1)
+                    Text(label)
+                        .font(.system(size: 12, weight: .medium, design: .monospaced))
+                        .foregroundColor(color)
+                        .tracking(1)
+                }
+                Spacer()
+                Image(systemName: icon)
+                    .font(.system(size: 24))
+                    .foregroundColor(color.opacity(0.8))
+            }
+            .padding(16)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 20)
+        .frame(maxWidth: .infinity, minHeight: 120, alignment: .topLeading)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(color.opacity(0.04))
+            ZStack {
+                Color.black
+                LinearGradient(
+                    colors: [color.opacity(0.08), .clear],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(color.opacity(0.12), lineWidth: 0.5)
+            Rectangle()
+                .stroke(Color(white: 0.13), lineWidth: 1) // border-[#222222]
         )
         .opacity(appeared ? 1 : 0)
         .offset(y: appeared ? 0 : 20)
@@ -249,23 +263,31 @@ struct StatRow: View {
     var body: some View {
         HStack {
             Text(label)
-                .font(.system(size: 11, design: .monospaced))
-                .foregroundColor(.white.opacity(0.35))
+                .font(.system(size: 14, design: .monospaced))
+                .foregroundColor(.white.opacity(0.6))
             Spacer()
             if let max = max {
-                Text("\(value)/\(max)")
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
-                    .foregroundColor(color)
+                HStack(spacing: 2) {
+                    Text(value)
+                        .font(.system(size: 14, weight: .bold, design: .monospaced))
+                        .foregroundColor(color)
+                    Text("/\(max)")
+                        .font(.system(size: 14, weight: .bold, design: .monospaced))
+                        .foregroundColor(.white.opacity(0.4))
+                }
             } else {
                 Text(value)
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .font(.system(size: 14, weight: .bold, design: .monospaced))
                     .foregroundColor(color)
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .background(Color.white.opacity(0.025))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .background(Color.black)
+        .overlay(
+            Rectangle()
+                .stroke(Color(white: 0.13), lineWidth: 1)
+        )
     }
 }
 
@@ -277,32 +299,31 @@ struct RateCard: View {
     let color: Color
 
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 12) {
             ZStack {
                 Circle()
-                    .stroke(color.opacity(0.12), lineWidth: 3)
+                    .stroke(color.opacity(0.12), lineWidth: 4)
                 Circle()
                     .trim(from: 0, to: CGFloat(value) / 100.0)
-                    .stroke(color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                    .stroke(color, style: StrokeStyle(lineWidth: 4, lineCap: .square)) // technical square line cap
                     .rotationEffect(.degrees(-90))
                 Text("\(value)%")
-                    .font(.system(size: 11, weight: .black, design: .monospaced))
+                    .font(.system(size: 14, weight: .bold, design: .monospaced))
                     .foregroundColor(.white)
             }
-            .frame(width: 44, height: 44)
+            .frame(width: 56, height: 56)
 
             Text(label)
-                .font(.system(size: 7, weight: .heavy, design: .monospaced))
-                .foregroundColor(color.opacity(0.6))
-                .tracking(0.5)
+                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .foregroundColor(color)
+                .tracking(1)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 14)
-        .background(Color.white.opacity(0.025))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .padding(.vertical, 20)
+        .background(Color.black)
         .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(color.opacity(0.08), lineWidth: 0.5)
+            Rectangle()
+                .stroke(Color(white: 0.13), lineWidth: 1)
         )
     }
 }
@@ -311,37 +332,50 @@ struct RateCard: View {
 
 struct MilestoneRow: View {
     let milestone: StatsView.Milestone
+    let isLast: Bool
 
     var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: milestone.icon)
-                .font(.system(size: 10))
-                .foregroundColor(milestone.color)
-                .frame(width: 20)
-
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 6) {
-                    Text(milestone.name.uppercased())
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
-                        .foregroundColor(.white.opacity(0.5))
-                    Text(milestone.type)
-                        .font(.system(size: 7, weight: .heavy, design: .monospaced))
-                        .foregroundColor(milestone.color.opacity(0.7))
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 2)
-                        .background(milestone.color.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 3))
+        HStack(alignment: .top, spacing: 16) {
+            // Pipeline graphics
+            VStack(spacing: 0) {
+                Circle()
+                    .fill(milestone.color)
+                    .frame(width: 10, height: 10)
+                    .padding(.top, 4)
+                
+                if !isLast {
+                    Rectangle()
+                        .fill(Color(white: 0.13))
+                        .frame(width: 2)
+                        .padding(.vertical, 4)
                 }
-                Text(milestone.date.formatted(date: .abbreviated, time: .omitted))
-                    .font(.system(size: 8, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.15))
             }
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
+                    Text(milestone.name)
+                        .font(.system(size: 14, weight: .bold, design: .default))
+                        .foregroundColor(.white)
+                    
+                    Text(milestone.type)
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .foregroundColor(milestone.color)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .overlay(
+                            Rectangle()
+                                .stroke(milestone.color.opacity(0.3), lineWidth: 1)
+                        )
+                }
+                
+                Text(milestone.date.formatted(date: .abbreviated, time: .omitted))
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundColor(.white.opacity(0.4))
+            }
+            .padding(.bottom, 24)
 
             Spacer()
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(Color.white.opacity(0.02))
-        .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 }
+

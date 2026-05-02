@@ -24,7 +24,7 @@ struct SkillsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                AppBackground(tint: Color(red: 0.1, green: 0.04, blue: 0.02))
+                AppBackground()
 
                 VStack(alignment: .leading, spacing: 0) {
                     // Header
@@ -32,68 +32,70 @@ struct SkillsView: View {
                         HStack(alignment: .top) {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text("SKILL FORGE")
-                                    .font(.system(size: 28, weight: .black, design: .monospaced))
+                                    .font(.system(size: 24, weight: .bold, design: .default))
                                     .foregroundColor(.white)
-                                Text("level up or fall behind")
-                                    .font(.system(size: 11, weight: .medium, design: .monospaced))
-                                    .foregroundColor(.white.opacity(0.2))
+                                    .tracking(2)
+                                Text("// Currently tracking \(allSkills.count) objectives")
+                                    .font(.system(size: 12, weight: .medium, design: .monospaced))
+                                    .foregroundColor(.white.opacity(0.4))
                             }
                             Spacer()
+                            Button {
+                                Haptic.medium()
+                                showingAdd = true
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 12))
+                                    Text("ADD SKILL")
+                                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                }
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(Color.black)
+                                .overlay(
+                                    Rectangle().stroke(Color(white: 0.25), lineWidth: 1)
+                                )
+                            }
+                            .buttonStyle(ScaleButtonStyle())
                         }
 
                         HStack(spacing: 6) {
                             ForEach(0..<2, id: \.self) { i in
-                                RoundedRectangle(cornerRadius: 2)
+                                Rectangle()
                                     .fill(i < activeSkills.count
-                                          ? Color(red: 1.0, green: 0.5, blue: 0.2).opacity(0.7)
-                                          : Color.white.opacity(0.08))
+                                          ? Color(red: 0.4, green: 0.8, blue: 1.0) // primary-container
+                                          : Color(white: 0.13))
                                     .frame(width: 24, height: 4)
                             }
                             Text("ACTIVE \(activeSkills.count)/2")
                                 .font(.system(size: 10, weight: .bold, design: .monospaced))
-                                .foregroundColor(.white.opacity(0.25))
+                                .foregroundColor(.white.opacity(0.4))
                                 .padding(.leading, 4)
                         }
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 60)
                     .padding(.bottom, 24)
+                    .background(Color.black)
 
                     ScrollView(showsIndicators: false) {
-                        VStack(spacing: 20) {
+                        VStack(spacing: 24) {
                             if allSkills.isEmpty {
                                 // Empty state
                                 VStack(spacing: 16) {
                                     Image(systemName: "flame")
                                         .font(.system(size: 40))
-                                        .foregroundColor(Color(red: 1.0, green: 0.5, blue: 0.2).opacity(0.15))
+                                        .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.15))
                                     Text("// no skills tracked yet")
                                         .font(.system(size: 14, weight: .medium, design: .monospaced))
-                                        .foregroundColor(.white.opacity(0.15))
+                                        .foregroundColor(.white.opacity(0.3))
                                     Text("Activate to start tracking progress.\nWhat are you learning right now?")
-                                        .font(.system(size: 11, design: .monospaced))
-                                        .foregroundColor(.white.opacity(0.08))
+                                        .font(.system(size: 12, design: .monospaced))
+                                        .foregroundColor(.white.opacity(0.2))
                                         .multilineTextAlignment(.center)
-                                        .lineSpacing(3)
-
-                                    Button {
-                                        Haptic.medium()
-                                        showingAdd = true
-                                    } label: {
-                                        HStack(spacing: 6) {
-                                            Image(systemName: "plus")
-                                                .font(.system(size: 11, weight: .bold))
-                                            Text("ADD YOUR FIRST SKILL")
-                                                .font(.system(size: 11, weight: .bold, design: .monospaced))
-                                        }
-                                        .foregroundColor(.black)
-                                        .padding(.horizontal, 20)
-                                        .padding(.vertical, 12)
-                                        .background(Color(red: 1.0, green: 0.5, blue: 0.2))
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    }
-                                    .buttonStyle(ScaleButtonStyle())
-                                    .padding(.top, 8)
+                                        .lineSpacing(4)
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 60)
@@ -111,28 +113,8 @@ struct SkillsView: View {
                                     skillSection("ACQUIRED", skills: acquiredSkills, startIndex: activeSkills.count + practicingSkills.count + queuedSkills.count)
                                 }
                             }
-
-                            Button {
-                                Haptic.medium()
-                                showingAdd = true
-                            } label: {
-                                HStack(spacing: 8) {
-                                    Image(systemName: "plus")
-                                        .font(.system(size: 12, weight: .bold))
-                                    Text("NEW SKILL")
-                                        .font(.system(size: 12, weight: .bold, design: .monospaced))
-                                }
-                                .foregroundColor(.white.opacity(0.3))
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 18)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.white.opacity(0.08), style: StrokeStyle(lineWidth: 1, dash: [8, 6]))
-                                )
-                            }
-                            .buttonStyle(ScaleButtonStyle())
-                            .padding(.horizontal, 20)
                         }
+                        .padding(.top, 12)
                         .padding(.bottom, 100)
                     }
                 }
@@ -147,7 +129,7 @@ struct SkillsView: View {
 
     @ViewBuilder
     func skillSection(_ title: String, skills: [SkillTrack], startIndex: Int) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             SectionLabel(text: title)
                 .padding(.horizontal, 20)
 
@@ -157,9 +139,9 @@ struct SkillsView: View {
                 }
                 .buttonStyle(CardPressStyle())
                 .opacity(appeared ? 1 : 0)
-                .offset(y: appeared ? 0 : 20)
+                .offset(y: appeared ? 0 : 16)
                 .animation(
-                    .spring(response: 0.6, dampingFraction: 0.8).delay(Double(startIndex + index) * 0.08),
+                    .spring(response: 0.6, dampingFraction: 0.8).delay(Double(startIndex + index) * 0.06),
                     value: appeared
                 )
             }
@@ -175,66 +157,100 @@ struct SkillCard: View {
     var accent: Color { skillCategoryColor(skill.category) }
 
     var body: some View {
-        HStack(spacing: 0) {
-            RoundedRectangle(cornerRadius: 2)
-                .fill(accent)
-                .frame(width: 4)
-                .padding(.vertical, 8)
-
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Text(skill.name.uppercased())
-                        .font(.system(size: 13, weight: .black, design: .monospaced))
-                        .foregroundColor(.white)
-                    Spacer()
-                    SkillCategoryBadge(category: skill.category)
-                }
-
-                HStack {
-                    SkillStatusPill(status: skill.status)
-                    Spacer()
+        VStack(spacing: 0) {
+            // Top Section
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 6) {
-                        ProgressArc(progress: skill.progress, size: 20, color: accent)
-                        Text("\(Int(skill.progress * 100))%")
+                        Circle()
+                            .fill(accent)
+                            .frame(width: 8, height: 8)
+                        Text(skill.category.rawValue.uppercased())
                             .font(.system(size: 10, weight: .bold, design: .monospaced))
-                            .foregroundColor(.white.opacity(0.3))
+                            .foregroundColor(.white.opacity(0.4))
+                            .tracking(1)
                     }
+                    Text(skill.name)
+                        .font(.system(size: 18, weight: .bold, design: .default))
+                        .foregroundColor(.white)
                 }
-
-                if let target = skill.targetDate {
-                    let days = Calendar.current.dateComponents([.day], from: Date(), to: target).day ?? 0
-                    HStack(spacing: 4) {
-                        Image(systemName: "target")
-                            .font(.system(size: 9))
-                        Text(days <= 0 ? "PAST DUE" : "\(days) days to target")
-                            .font(.system(size: 9, weight: .medium, design: .monospaced))
+                Spacer()
+                
+                HStack(spacing: 4) {
+                    if skill.status == .active {
+                        Circle()
+                            .fill(accent)
+                            .frame(width: 6, height: 6)
+                            .modifier(PulseEffect())
                     }
-                    .foregroundColor(days <= 7 ? .red.opacity(0.6) : .white.opacity(0.2))
+                    Text(skill.status.rawValue.uppercased())
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .foregroundColor(accent)
                 }
-
-                if !skill.linkedProjectName.isEmpty {
-                    HStack(spacing: 4) {
-                        Image(systemName: "link")
-                            .font(.system(size: 8))
-                        Text("supports \(skill.linkedProjectName.uppercased())")
-                            .font(.system(size: 9, weight: .medium, design: .monospaced))
-                    }
-                    .foregroundColor(Color(red: 0.75, green: 0.5, blue: 1.0).opacity(0.5))
-                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.black)
+                .border(accent, width: 1)
             }
-            .padding(.leading, 14)
-            .padding(.trailing, 16)
-            .padding(.vertical, 14)
+            .padding(16)
+            
+            // Bottom Section
+            HStack(alignment: .bottom) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("TARGET: \(skill.status == .acquired ? "ACQUIRED" : "MASTERY")")
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .foregroundColor(.white.opacity(0.4))
+                    
+                    if let target = skill.targetDate {
+                        let days = Calendar.current.dateComponents([.day], from: Date(), to: target).day ?? 0
+                        Text(days <= 0 ? "Past Due" : "\(days)d Remaining")
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundColor(days <= 7 ? Color(red: 1.0, green: 0.27, blue: 0.27) : .white)
+                    } else {
+                        Text("Continuous")
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundColor(.white)
+                    }
+                }
+                Spacer()
+                
+                // Progress Arc inside the box
+                ZStack {
+                    Circle()
+                        .stroke(accent.opacity(0.15), lineWidth: 3)
+                    Circle()
+                        .trim(from: 0, to: CGFloat(skill.progress))
+                        .stroke(accent, style: StrokeStyle(lineWidth: 3, lineCap: .square))
+                        .rotationEffect(.degrees(-90))
+                    Text("\(Int(skill.progress * 100))%")
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .foregroundColor(.white)
+                }
+                .frame(width: 40, height: 40)
+            }
+            .padding(16)
+            .background(Color.black)
+            .overlay(
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundColor(Color(white: 0.13)),
+                alignment: .top
+            )
         }
         .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.white.opacity(0.035))
+            ZStack {
+                Color.black
+                LinearGradient(
+                    colors: [accent.opacity(0.05), .clear],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(accent.opacity(0.12), lineWidth: 0.5)
+            Rectangle()
+                .stroke(Color(white: 0.13), lineWidth: 1)
         )
-        .shadow(color: accent.opacity(0.06), radius: 10, y: 4)
         .padding(.horizontal, 20)
     }
 }
@@ -253,7 +269,7 @@ struct AddSkillSheet: View {
 
     var body: some View {
         ZStack {
-            AppBackground(tint: Color(red: 0.06, green: 0.03, blue: 0.08))
+            AppBackground()
 
             VStack(alignment: .leading, spacing: 24) {
                 HStack {

@@ -31,10 +31,10 @@ struct ForgeTabBar: View {
     @Binding var selectedTab: Int
 
     private let tabs: [(icon: String, label: String)] = [
-        ("scope", "FOCUS"),
-        ("hammer.fill", "PROJECTS"),
-        ("flame.fill", "SKILLS"),
-        ("chart.bar.fill", "STATS")
+        ("scope", "Focus"),
+        ("folder", "Projects"),
+        ("terminal", "Skills"),
+        ("chart.bar.xaxis", "Stats")
     ]
 
     var body: some View {
@@ -46,47 +46,28 @@ struct ForgeTabBar: View {
                         selectedTab = index
                     }
                 } label: {
-                    VStack(spacing: 6) {
+                    VStack(spacing: 4) {
                         Image(systemName: tabs[index].icon)
-                            .font(.system(size: 16, weight: selectedTab == index ? .bold : .regular))
-                            .foregroundColor(selectedTab == index ? tabAccent(index) : .white.opacity(0.25))
+                            .font(.system(size: 18, weight: selectedTab == index ? .semibold : .regular))
+                            .foregroundColor(selectedTab == index ? Color(red: 0.4, green: 0.8, blue: 1.0) : .white.opacity(0.4))
+                            .offset(y: selectedTab == index ? -2 : 0) // hover effect equivalent
 
                         Text(tabs[index].label)
-                            .font(.system(size: 8, weight: .heavy, design: .monospaced))
-                            .foregroundColor(selectedTab == index ? tabAccent(index) : .white.opacity(0.2))
+                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                            .foregroundColor(selectedTab == index ? Color(red: 0.4, green: 0.8, blue: 1.0) : .white.opacity(0.4))
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.top, 12)
-                    .padding(.bottom, 8)
-                    .background(
-                        selectedTab == index ?
-                            tabAccent(index).opacity(0.08) : Color.clear
-                    )
+                    .padding(.top, 14)
+                    .padding(.bottom, 10)
                 }
                 .buttonStyle(.plain)
             }
         }
-        .background(
-            ZStack {
-                Color.black.opacity(0.95)
-                Rectangle()
-                    .fill(Color.white.opacity(0.04))
-            }
-        )
+        .background(Color(red: 0.04, green: 0.04, blue: 0.04)) // #0a0a0a
         .overlay(alignment: .top) {
             Rectangle()
-                .fill(Color.white.opacity(0.06))
-                .frame(height: 0.5)
-        }
-    }
-
-    func tabAccent(_ index: Int) -> Color {
-        switch index {
-        case 0:  return Color(red: 0.4, green: 0.8, blue: 1.0)
-        case 1:  return Color.white
-        case 2:  return Color(red: 1.0, green: 0.5, blue: 0.2)
-        case 3:  return Color(red: 0.3, green: 0.9, blue: 0.4)
-        default: return .white
+                .fill(Color(white: 0.13)) // #222222
+                .frame(height: 1)
         }
     }
 }

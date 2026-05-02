@@ -73,7 +73,7 @@ struct FocusQueueView: View {
 
     var body: some View {
         ZStack {
-            AppBackground(tint: Color(red: 0.02, green: 0.06, blue: 0.12))
+            AppBackground()
 
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 20) {
@@ -85,17 +85,17 @@ struct FocusQueueView: View {
                     if focusItems.isEmpty {
                         emptyState
                     } else {
-                        VStack(alignment: .leading, spacing: 6) {
-                            SectionLabel(text: "FOCUS ORDER")
+                        VStack(alignment: .leading, spacing: 12) {
+                            SectionLabel(text: "FOCUS QUEUE")
                                 .padding(.horizontal, 20)
 
-                            VStack(spacing: 10) {
+                            VStack(spacing: 8) {
                                 ForEach(Array(focusItems.enumerated()), id: \.element.id) { index, item in
                                     FocusCard(item: item, rank: index + 1, aiReason: aiReason(for: item))
                                         .opacity(appeared ? 1 : 0)
-                                        .offset(y: appeared ? 0 : 20)
+                                        .offset(y: appeared ? 0 : 16)
                                         .animation(
-                                            .spring(response: 0.6, dampingFraction: 0.8).delay(Double(index) * 0.08),
+                                        .spring(response: 0.6, dampingFraction: 0.8).delay(Double(index) * 0.06),
                                             value: appeared
                                         )
                                 }
@@ -129,11 +129,12 @@ struct FocusQueueView: View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 6) {
                 Text("FOCUS QUEUE")
-                    .font(.system(size: 28, weight: .black, design: .monospaced))
+                    .font(.system(size: 24, weight: .bold, design: .default))
                     .foregroundColor(.white)
-                Text("prioritize ruthlessly")
-                    .font(.system(size: 11, weight: .medium, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.2))
+                    .tracking(2)
+                Text("AI-RANKED")
+                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0)) // primary-container
             }
             Spacer()
             Button {
@@ -141,11 +142,8 @@ struct FocusQueueView: View {
                 showSettings = true
             } label: {
                 Image(systemName: "gearshape")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.white.opacity(0.3))
-                    .padding(10)
-                    .background(Color.white.opacity(0.06))
-                    .clipShape(Circle())
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white.opacity(0.4))
             }
         }
         .padding(.horizontal, 20)
@@ -155,25 +153,24 @@ struct FocusQueueView: View {
     // MARK: - Action Bar (Brain Dump + Weekly Review)
 
     var actionBar: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 12) {
             Button {
                 Haptic.medium()
                 showBrainDump = true
             } label: {
                 HStack(spacing: 6) {
-                    Image(systemName: "brain")
-                        .font(.system(size: 10, weight: .bold))
+                    Image(systemName: "plus.app")
+                        .font(.system(size: 14))
                     Text("BRAIN DUMP")
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .font(.system(size: 12, weight: .bold, design: .monospaced))
                 }
-                .foregroundColor(Color(red: 0.75, green: 0.5, blue: 1.0))
-                .padding(.horizontal, 14)
-                .padding(.vertical, 9)
-                .background(Color(red: 0.75, green: 0.5, blue: 1.0).opacity(0.08))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(Color.black)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(Color(red: 0.75, green: 0.5, blue: 1.0).opacity(0.2), lineWidth: 0.5)
+                    Rectangle()
+                        .stroke(Color(white: 0.25), lineWidth: 1)
                 )
             }
             .buttonStyle(ScaleButtonStyle())
@@ -183,24 +180,21 @@ struct FocusQueueView: View {
                 showWeeklyReview = true
             } label: {
                 HStack(spacing: 6) {
-                    Image(systemName: "calendar.badge.clock")
-                        .font(.system(size: 10, weight: .bold))
+                    Image(systemName: "calendar")
+                        .font(.system(size: 14))
                     Text("WEEKLY REVIEW")
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .font(.system(size: 12, weight: .bold, design: .monospaced))
                 }
-                .foregroundColor(Color(red: 0.2, green: 0.85, blue: 0.9))
-                .padding(.horizontal, 14)
-                .padding(.vertical, 9)
-                .background(Color(red: 0.2, green: 0.85, blue: 0.9).opacity(0.08))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .foregroundColor(.black)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(Color(red: 0.4, green: 0.8, blue: 1.0))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(Color(red: 0.2, green: 0.85, blue: 0.9).opacity(0.2), lineWidth: 0.5)
+                    Rectangle()
+                        .stroke(Color(red: 0.4, green: 0.8, blue: 1.0), lineWidth: 1)
                 )
             }
             .buttonStyle(ScaleButtonStyle())
-
-            Spacer()
         }
         .padding(.horizontal, 20)
     }
@@ -210,11 +204,11 @@ struct FocusQueueView: View {
     var workloadBar: some View {
         HStack(spacing: 16) {
             WorkloadChip(label: "PROJECTS", count: activeProjects.count, max: 3, color: .white)
-            WorkloadChip(label: "SKILLS", count: activeSkills.filter { $0.status == .active }.count, max: 2, color: Color(red: 1.0, green: 0.5, blue: 0.2))
+            WorkloadChip(label: "SKILLS", count: activeSkills.filter { $0.status == .active }.count, max: 2, color: Color(red: 0.4, green: 0.8, blue: 1.0))
             Spacer()
             Text("\(focusItems.count) active")
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
-                .foregroundColor(.white.opacity(0.2))
+                .font(.system(size: 12, design: .monospaced))
+                .foregroundColor(.white.opacity(0.4))
         }
         .padding(.horizontal, 20)
     }
@@ -224,12 +218,12 @@ struct FocusQueueView: View {
     var aiOpinionCard: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
-                HStack(spacing: 6) {
-                    Image(systemName: "brain.head.profile")
-                        .font(.system(size: 12, weight: .bold))
-                    Text("AI OPINION")
-                        .font(.system(size: 10, weight: .heavy, design: .monospaced))
-                        .tracking(1)
+                HStack(spacing: 8) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 14))
+                    Text("AI STRATEGY INTEL")
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .tracking(2)
                 }
                 .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0))
 
@@ -245,16 +239,15 @@ struct FocusQueueView: View {
                         Task { await aiService.analyze(projects: allProjects, skills: allSkills) }
                     } label: {
                         HStack(spacing: 4) {
-                            Image(systemName: "arrow.clockwise")
+                            Image(systemName: "arrow.triangle.2.circlepath")
                                 .font(.system(size: 10, weight: .bold))
                             Text("ANALYZE")
-                                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                .font(.system(size: 10, weight: .bold, design: .monospaced))
                         }
-                        .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.7))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.08))
-                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                        .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.1))
                     }
                     .buttonStyle(ScaleButtonStyle())
                 }
@@ -262,38 +255,35 @@ struct FocusQueueView: View {
 
             if let analysis = aiService.lastAnalysis {
                 Text(analysis.opinion)
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.6))
-                    .lineSpacing(4)
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.8))
+                    .lineSpacing(6)
                     .fixedSize(horizontal: false, vertical: true)
 
                 if let updated = aiService.lastUpdated {
                     Text("analyzed \(updated.formatted(.relative(presentation: .named)))")
-                        .font(.system(size: 9, design: .monospaced))
-                        .foregroundColor(.white.opacity(0.15))
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundColor(.white.opacity(0.3))
                 }
             } else if let err = aiService.errorMessage {
                 Text(err)
-                    .font(.system(size: 11, design: .monospaced))
-                    .foregroundColor(.red.opacity(0.6))
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundColor(.red.opacity(0.8))
             } else if !aiService.hasKey {
                 Text("Add your Groq API key in Settings to get AI-powered priority analysis.")
-                    .font(.system(size: 11, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.25))
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundColor(.white.opacity(0.4))
             } else {
                 Text("Tap ANALYZE to get AI recommendations.")
-                    .font(.system(size: 11, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.25))
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundColor(.white.opacity(0.4))
             }
         }
-        .padding(18)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.03))
-        )
+        .padding(20)
+        .background(Color.black)
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.12), lineWidth: 0.5)
+            Rectangle()
+                .stroke(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.5), lineWidth: 1)
         )
         .padding(.horizontal, 20)
     }
@@ -334,99 +324,107 @@ struct FocusCard: View {
     var accent: Color {
         switch item {
         case .project(let p): return priorityColor(p.priority)
-        case .skill:          return Color(red: 1.0, green: 0.5, blue: 0.2)
+        case .skill:          return Color(red: 0.4, green: 0.8, blue: 1.0)
         }
     }
 
     var typeLabel: String {
-        item.isProject ? "PROJECT" : "SKILL"
+        item.isProject ? "Project" : "Skill"
     }
 
     var body: some View {
         HStack(spacing: 0) {
-            Text(String(format: "%02d", rank))
-                .font(.system(size: 24, weight: .black, design: .monospaced))
-                .foregroundColor(rank <= 2 ? accent : .white.opacity(0.15))
-                .frame(width: 48)
+            // Rank Block
+            VStack {
+                Spacer()
+                Text("\(rank)")
+                    .font(.system(size: 32, weight: .bold, design: .default))
+                    .foregroundColor(rank == 1 ? accent : .white.opacity(0.3))
+                Spacer()
+            }
+            .frame(width: 64)
+            .background(Color(white: 0.04)) // bg-surface-container-lowest
+            .overlay(
+                Rectangle()
+                    .stroke(Color(white: 0.13), lineWidth: 1)
+                    .edgesIgnoringSafeArea(.all)
+            )
 
-            RoundedRectangle(cornerRadius: 2)
-                .fill(accent)
-                .frame(width: 3)
-                .padding(.vertical, 8)
-
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text(item.name.uppercased())
-                        .font(.system(size: 13, weight: .black, design: .monospaced))
-                        .foregroundColor(.white)
+            // Content Block
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .top) {
+                    Text(item.name)
+                        .font(.system(size: 18, weight: .bold, design: .default))
+                        .foregroundColor(rank == 1 ? accent : .white)
                     Spacer()
-                    Text(typeLabel)
-                        .font(.system(size: 8, weight: .heavy, design: .monospaced))
-                        .foregroundColor(accent.opacity(0.7))
-                        .padding(.horizontal, 7)
-                        .padding(.vertical, 3)
-                        .background(accent.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 3))
-                }
-
-                switch item {
-                case .project(let p):
-                    HStack {
-                        StatusPill(status: p.status)
-                        PriorityBadge(priority: p.priority)
-                        Spacer()
-                        if let d = p.deadline {
-                            DeadlineLabel(date: d)
-                        }
-                    }
-                case .skill(let s):
-                    HStack(spacing: 10) {
-                        SkillStatusPill(status: s.status)
-                        SkillCategoryBadge(category: s.category)
-                        Spacer()
-                        HStack(spacing: 4) {
-                            ProgressArc(progress: s.progress, size: 16, color: accent)
-                            Text("\(Int(s.progress * 100))%")
-                                .font(.system(size: 9, weight: .bold, design: .monospaced))
-                                .foregroundColor(.white.opacity(0.3))
-                        }
-                    }
-                }
-
-                // Skill-project link
-                if case .skill(let s) = item, !s.linkedProjectName.isEmpty {
+                    
+                    // Top right label
                     HStack(spacing: 4) {
-                        Image(systemName: "link")
-                            .font(.system(size: 8))
-                        Text("supports \(s.linkedProjectName.uppercased())")
-                            .font(.system(size: 9, weight: .medium, design: .monospaced))
+                        if rank == 1 {
+                            Circle()
+                                .fill(accent)
+                                .frame(width: 6, height: 6)
+                                .modifier(PulseEffect())
+                        }
+                        Text(rank == 1 ? "LIVE" : "QUEUED")
+                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                            .foregroundColor(rank == 1 ? accent : .white.opacity(0.4))
+                            .uppercaseSmallCaps()
                     }
-                    .foregroundColor(Color(red: 0.75, green: 0.5, blue: 1.0).opacity(0.55))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(rank == 1 ? accent.opacity(0.1) : Color(white: 0.13))
+                    .border(rank == 1 ? accent.opacity(0.3) : Color(white: 0.25))
                 }
 
-                if let reason = aiReason {
-                    Text(">> \(reason)")
-                        .font(.system(size: 10, design: .monospaced))
-                        .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.55))
-                        .lineLimit(2)
+                HStack(spacing: 16) {
+                    HStack(spacing: 6) {
+                        Image(systemName: item.isProject ? "folder" : "terminal")
+                            .font(.system(size: 12))
+                        Text(typeLabel)
+                            .font(.system(size: 12, design: .monospaced))
+                    }
+                    .foregroundColor(.white.opacity(0.4))
+
+                    switch item {
+                    case .project(let p):
+                        if let d = p.deadline {
+                            HStack(spacing: 6) {
+                                Image(systemName: "clock")
+                                    .font(.system(size: 12))
+                                DeadlineLabel(date: d)
+                            }
+                        }
+                    case .skill(let s):
+                        HStack(spacing: 6) {
+                            Image(systemName: "bolt")
+                                .font(.system(size: 12))
+                            Text("\(Int(s.progress * 100))% Mastery")
+                                .font(.system(size: 12, design: .monospaced))
+                                .foregroundColor(.white.opacity(0.7))
+                        }
+                    }
                 }
             }
-            .padding(.leading, 12)
-            .padding(.trailing, 16)
-            .padding(.vertical, 14)
+            .padding(16)
         }
+        .frame(minHeight: 100)
         .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.white.opacity(0.03))
+            ZStack {
+                Color.black
+                if rank == 1 {
+                    LinearGradient(
+                        colors: [accent.opacity(0.1), .clear],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                }
+            }
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(
-                    rank == 1 ? accent.opacity(0.25) : Color.white.opacity(0.05),
-                    lineWidth: rank == 1 ? 1 : 0.5
-                )
+            Rectangle()
+                .stroke(Color(white: 0.13), lineWidth: 1)
         )
-        .shadow(color: rank == 1 ? accent.opacity(0.12) : .clear, radius: 16, y: 6)
         .padding(.horizontal, 20)
     }
 }
