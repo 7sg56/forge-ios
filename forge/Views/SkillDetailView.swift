@@ -24,7 +24,7 @@ struct SkillDetailView: View {
 
     var body: some View {
         ZStack {
-            AppBackground(tint: Color(red: 0.06, green: 0.03, blue: 0.08))
+            AppBackground()
 
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 28) {

@@ -22,10 +22,10 @@ struct ProjectDetailView: View {
             AppBackground()
 
             ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 28) {
+                VStack(alignment: .leading, spacing: 16) {
 
                     // Name + priority header
-                    VStack(alignment: .leading, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             PriorityBadge(priority: project.priority)
                             Spacer()
@@ -46,7 +46,7 @@ struct ProjectDetailView: View {
                     SubtleDivider()
 
                     // Status Pipeline (visual)
-                    VStack(alignment: .leading, spacing: 14) {
+                    VStack(alignment: .leading, spacing: 8) {
                         SectionLabel(text: "PIPELINE")
                         StatusPipeline(currentStatus: project.status) { newStatus in
                             Haptic.medium()
@@ -68,7 +68,7 @@ struct ProjectDetailView: View {
                     SubtleDivider()
 
                     // Priority selector
-                    VStack(alignment: .leading, spacing: 14) {
+                    VStack(alignment: .leading, spacing: 8) {
                         SectionLabel(text: "PRIORITY")
                         HStack(spacing: 10) {
                             ForEach(Priority.allCases, id: \.self) { p in
@@ -102,7 +102,7 @@ struct ProjectDetailView: View {
                     SubtleDivider()
 
                     // MARK: - Deadline
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             SectionLabel(text: "DEADLINE")
                             Spacer()
@@ -172,7 +172,7 @@ struct ProjectDetailView: View {
                     SubtleDivider()
 
                     // MARK: - Tags
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 8) {
                         SectionLabel(text: "TAGS")
 
                         if !project.tags.isEmpty {
@@ -233,7 +233,7 @@ struct ProjectDetailView: View {
                     SubtleDivider()
 
                     // MARK: - Notes
-                    VStack(alignment: .leading, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 8) {
                         SectionLabel(text: "NOTES")
                         TextField("ideas, links, decisions, blockers...", text: $project.notes, axis: .vertical)
                             .font(.system(size: 13, design: .monospaced))
@@ -396,9 +396,9 @@ struct ProjectDetailView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         ForEach(rec.signals, id: \.self) { signal in
                             HStack(spacing: 6) {
-                                Text(">>")
-                                    .font(.system(size: 9, weight: .bold, design: .monospaced))
-                                    .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.4))
+                                Circle()
+                                    .fill(Color.red.opacity(0.4))
+                                    .frame(width: 4, height: 4)
                                 Text(signal)
                                     .font(.system(size: 10, design: .monospaced))
                                     .foregroundColor(.white.opacity(0.35))
@@ -414,12 +414,23 @@ struct ProjectDetailView: View {
         }
         .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.03))
+            HStack(spacing: 0) {
+                Rectangle()
+                    .fill(Color.red)
+                    .frame(width: 2)
+                Spacer()
+            }
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.1), lineWidth: 0.5)
+        .background(
+            Color(red: 0.06, green: 0.02, blue: 0.02)
+        )
+        .clipShape(
+            UnevenRoundedRectangle(
+                topLeadingRadius: 0,
+                bottomLeadingRadius: 0,
+                bottomTrailingRadius: 12,
+                topTrailingRadius: 12
+            )
         )
     }
 

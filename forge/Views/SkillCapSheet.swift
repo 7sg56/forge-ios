@@ -15,7 +15,7 @@ struct SkillCapSheet: View {
 
     var body: some View {
         ZStack {
-            AppBackground(tint: Color(red: 0.08, green: 0.04, blue: 0.02))
+            AppBackground()
 
             VStack(spacing: 28) {
                 Spacer()

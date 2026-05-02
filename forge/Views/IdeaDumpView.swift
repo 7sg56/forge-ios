@@ -6,15 +6,29 @@ struct IdeaDumpView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AIService.self) private var aiService
 
+    @Query var allProjects: [Project]
+    @Query var allSkills: [SkillTrack]
+
     @State private var rawText = ""
     @State private var result: BrainDumpResult?
     @State private var isProcessing = false
     @State private var errorMsg: String?
     @State private var appeared = false
+    @State private var showCapAlert = false
+    @State private var capAlertMessage = ""
+    @State private var scrollProxy: ScrollViewProxy?
+
+    var activeProjects: [Project] {
+        allProjects.filter { $0.status != .killed }
+    }
+
+    var activeSkillCount: Int {
+        allSkills.filter { $0.status == .active }.count
+    }
 
     var body: some View {
         ZStack {
-            AppBackground(tint: Color(red: 0.04, green: 0.06, blue: 0.12))
+            AppBackground()
 
             VStack(alignment: .leading, spacing: 0) {
                 header
@@ -22,22 +36,37 @@ struct IdeaDumpView: View {
                     .padding(.top, 36)
                     .padding(.bottom, 20)
 
-                ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 24) {
-                        if result == nil {
-                            inputSection
-                        } else {
-                            resultsSection
+                ScrollViewReader { proxy in
+                    ScrollView(showsIndicators: false) {
+                        VStack(alignment: .leading, spacing: 24) {
+                            if result == nil {
+                                inputSection
+                            } else {
+                                resultsSection
+                                    .id("results")
+                            }
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 100)
+                    }
+                    .onChange(of: result) {
+                        if result != nil {
+                            withAnimation(.easeOut(duration: 0.4)) {
+                                proxy.scrollTo("results", anchor: .top)
+                            }
                         }
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 100)
                 }
             }
             .opacity(appeared ? 1 : 0)
             .animation(.easeOut(duration: 0.3), value: appeared)
         }
         .onAppear { appeared = true }
+        .alert("Capacity Reached", isPresented: $showCapAlert) {
+            Button("GOT IT") { }
+        } message: {
+            Text(capAlertMessage)
+        }
     }
 
     // MARK: - Header
@@ -115,7 +144,7 @@ struct IdeaDumpView: View {
                 .padding(.vertical, 18)
                 .background(
                     LinearGradient(
-                        colors: [Color(red: 0.4, green: 0.8, blue: 1.0), Color(red: 0.3, green: 0.6, blue: 0.9)],
+                        colors: [.white, Color(white: 0.85)],
                         startPoint: .top,
                         endPoint: .bottom
                     )
@@ -134,15 +163,11 @@ struct IdeaDumpView: View {
         VStack(alignment: .leading, spacing: 24) {
             if let r = result {
                 if !r.projects.isEmpty {
-                    dumpCategory("PROJECTS", items: r.projects, color: .white, icon: "hammer.fill") { item in
-                        addProject(item)
-                    }
+                    projectResults(r.projects)
                 }
 
                 if !r.skills.isEmpty {
-                    dumpCategory("SKILLS", items: r.skills, color: Color(red: 1.0, green: 0.5, blue: 0.2), icon: "flame.fill") { item in
-                        addSkill(item)
-                    }
+                    skillResults(r.skills)
                 }
 
                 if !r.ignore.isEmpty {
@@ -170,19 +195,125 @@ struct IdeaDumpView: View {
                     Button {
                         Haptic.success()
                         addAll()
-                        dismiss()
                     } label: {
                         Text("ADD ALL")
                             .font(.system(size: 12, weight: .bold, design: .monospaced))
                             .foregroundColor(.black)
                             .padding(.horizontal, 20)
                             .padding(.vertical, 12)
-                            .background(Color(red: 0.4, green: 0.8, blue: 1.0))
+                            .background(Color.white)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(ScaleButtonStyle())
                 }
             }
+        }
+    }
+
+    // MARK: - Project Results (with AI verdict inline)
+
+    @ViewBuilder
+    func projectResults(_ items: [BrainDumpItem]) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                Image(systemName: "hammer.fill")
+                    .font(.system(size: 10, weight: .bold))
+                SectionLabel(text: "PROJECTS (\(items.count))")
+            }
+            .foregroundColor(.white)
+
+            ForEach(Array(items.enumerated()), id: \.offset) { _, item in
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack(spacing: 0) {
+                        Rectangle()
+                            .fill(verdictColor(item.verdict))
+                            .frame(width: 3)
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Text(item.name.uppercased())
+                                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                    .foregroundColor(.white)
+                                Spacer()
+
+                                // Verdict badge
+                                if let verdict = item.verdict, !verdict.isEmpty {
+                                    Text(verdict)
+                                        .font(.system(size: 8, weight: .heavy, design: .monospaced))
+                                        .foregroundColor(verdictColor(item.verdict))
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 3)
+                                        .background(verdictColor(item.verdict).opacity(0.12))
+                                        .clipShape(RoundedRectangle(cornerRadius: 3))
+                                }
+                            }
+
+                            Text(item.reason)
+                                .font(.system(size: 10, design: .monospaced))
+                                .foregroundColor(.white.opacity(0.35))
+                                .lineLimit(2)
+
+                            // Pros & Cons
+                            if let pro = item.pro, !pro.isEmpty {
+                                HStack(alignment: .top, spacing: 4) {
+                                    Text("+")
+                                        .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                        .foregroundColor(Color(red: 0.3, green: 0.9, blue: 0.4))
+                                    Text(pro)
+                                        .font(.system(size: 9, design: .monospaced))
+                                        .foregroundColor(.white.opacity(0.3))
+                                        .lineLimit(1)
+                                }
+                            }
+                            if let con = item.con, !con.isEmpty {
+                                HStack(alignment: .top, spacing: 4) {
+                                    Text("-")
+                                        .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                        .foregroundColor(.red.opacity(0.7))
+                                    Text(con)
+                                        .font(.system(size: 9, design: .monospaced))
+                                        .foregroundColor(.white.opacity(0.3))
+                                        .lineLimit(1)
+                                }
+                            }
+                        }
+                        .padding(.leading, 10)
+                        .padding(.trailing, 12)
+                        .padding(.vertical, 10)
+
+                        // Add button
+                        Button {
+                            Haptic.light()
+                            addProject(item)
+                        } label: {
+                            Text("+ ADD")
+                                .font(.system(size: 9, weight: .heavy, design: .monospaced))
+                                .foregroundColor(.white.opacity(0.5))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(Color.white.opacity(0.06))
+                                .clipShape(RoundedRectangle(cornerRadius: 5))
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                        .padding(.trailing, 12)
+                    }
+                }
+                .background(Color.white.opacity(0.03))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
+                )
+            }
+        }
+    }
+
+    // MARK: - Skill Results
+
+    @ViewBuilder
+    func skillResults(_ items: [BrainDumpItem]) -> some View {
+        dumpCategory("SKILLS", items: items, color: Color(red: 1.0, green: 0.7, blue: 0.2), icon: "flame.fill") { item in
+            addSkill(item)
         }
     }
 
@@ -198,10 +329,9 @@ struct IdeaDumpView: View {
 
             ForEach(Array(items.enumerated()), id: \.offset) { _, item in
                 HStack(spacing: 0) {
-                    RoundedRectangle(cornerRadius: 2)
+                    Rectangle()
                         .fill(color)
                         .frame(width: 3)
-                        .padding(.vertical, 6)
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(item.name.uppercased())
@@ -257,6 +387,14 @@ struct IdeaDumpView: View {
     }
 
     func addProject(_ item: BrainDumpItem) {
+        // Capacity gate: block if 3+ active projects
+        guard activeProjects.count < 3 else {
+            capAlertMessage = "Kill or ship something first. You already have 3 active projects."
+            showCapAlert = true
+            Haptic.warning()
+            return
+        }
+
         let priority: Priority = {
             switch item.suggestedPriority?.lowercased() {
             case "high":   return .high
@@ -270,6 +408,8 @@ struct IdeaDumpView: View {
     }
 
     func addSkill(_ item: BrainDumpItem) {
+        // Skills start as queued, so no active cap issue on add.
+        // Cap is enforced when activating (in SkillDetailView).
         let s = SkillTrack(name: item.name, category: .other, notes: item.reason)
         context.insert(s)
         Haptic.success()
@@ -277,7 +417,43 @@ struct IdeaDumpView: View {
 
     func addAll() {
         guard let r = result else { return }
-        for item in r.projects { addProject(item) }
-        for item in r.skills { addSkill(item) }
+        var addedProjects = 0
+        let projectSlots = max(0, 3 - activeProjects.count)
+
+        for item in r.projects {
+            if addedProjects >= projectSlots {
+                capAlertMessage = "Reached 3-project cap. \(r.projects.count - addedProjects) project(s) skipped."
+                showCapAlert = true
+                break
+            }
+            let priority: Priority = {
+                switch item.suggestedPriority?.lowercased() {
+                case "high":   return .high
+                case "low":    return .low
+                default:       return .medium
+                }
+            }()
+            let p = Project(name: item.name, tagline: item.reason, priority: priority)
+            context.insert(p)
+            addedProjects += 1
+        }
+
+        for item in r.skills {
+            let s = SkillTrack(name: item.name, category: .other, notes: item.reason)
+            context.insert(s)
+        }
+
+        if !showCapAlert {
+            dismiss()
+        }
+    }
+
+    func verdictColor(_ verdict: String?) -> Color {
+        switch verdict?.uppercased() {
+        case "WORTH BUILDING":   return Color(red: 0.3, green: 0.9, blue: 0.4)
+        case "NEEDS THOUGHT":    return Color(red: 1.0, green: 0.7, blue: 0.2)
+        case "KILL IT":          return .red
+        default:                 return .white.opacity(0.3)
+        }
     }
 }

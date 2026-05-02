@@ -13,7 +13,7 @@ struct KillLogView: View {
 
     var body: some View {
         ZStack {
-            AppBackground(tint: Color(red: 0.08, green: 0.02, blue: 0.02))
+            AppBackground()
 
             VStack(alignment: .leading, spacing: 0) {
                 // Header

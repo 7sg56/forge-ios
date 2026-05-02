@@ -12,7 +12,7 @@ struct SettingsSheet: View {
 
     var body: some View {
         ZStack {
-            AppBackground(tint: Color(red: 0.04, green: 0.04, blue: 0.1))
+            AppBackground()
 
             VStack(alignment: .leading, spacing: 24) {
                 HStack {

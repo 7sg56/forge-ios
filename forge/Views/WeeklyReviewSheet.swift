@@ -16,7 +16,7 @@ struct WeeklyReviewSheet: View {
 
     var body: some View {
         ZStack {
-            AppBackground(tint: Color(red: 0.02, green: 0.05, blue: 0.12))
+            AppBackground()
 
             VStack(alignment: .leading, spacing: 0) {
                 header

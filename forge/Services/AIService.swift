@@ -39,16 +39,19 @@ struct WeeklyReviewResponse: Codable, Sendable {
     let coachNote: String
 }
 
-struct BrainDumpResult: Codable, Sendable {
+struct BrainDumpResult: Codable, Sendable, Equatable {
     let projects: [BrainDumpItem]
     let skills: [BrainDumpItem]
     let ignore: [BrainDumpItem]
 }
 
-struct BrainDumpItem: Codable, Sendable {
+struct BrainDumpItem: Codable, Sendable, Equatable {
     let name: String
     let reason: String
     let suggestedPriority: String?
+    let verdict: String?
+    let pro: String?
+    let con: String?
 }
 
 enum AIError: Error, LocalizedError, Sendable {
@@ -278,12 +281,14 @@ class AIService {
         - Be ruthless about the ignore pile. Most ideas are noise.
         - For each item, give a one-line reason why it belongs there.
         - suggestedPriority is "high", "medium", or "low" (null for ignored items)
+        - For PROJECTS ONLY: also include a "verdict" field ("WORTH BUILDING", "NEEDS THOUGHT", or "KILL IT"), a "pro" (one-line strongest argument for building it), and a "con" (one-line biggest risk or weakness). Be brutally honest.
+        - For skills and ignored items, set verdict, pro, and con to null.
 
         Respond ONLY with valid JSON:
         {
-          "projects": [{"name": "...", "reason": "...", "suggestedPriority": "high/medium/low"}],
-          "skills": [{"name": "...", "reason": "...", "suggestedPriority": "high/medium/low"}],
-          "ignore": [{"name": "...", "reason": "...", "suggestedPriority": null}]
+          "projects": [{"name": "...", "reason": "...", "suggestedPriority": "high/medium/low", "verdict": "WORTH BUILDING/NEEDS THOUGHT/KILL IT", "pro": "...", "con": "..."}],
+          "skills": [{"name": "...", "reason": "...", "suggestedPriority": "high/medium/low", "verdict": null, "pro": null, "con": null}],
+          "ignore": [{"name": "...", "reason": "...", "suggestedPriority": null, "verdict": null, "pro": null, "con": null}]
         }
         """
 

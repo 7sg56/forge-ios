@@ -16,9 +16,9 @@ enum Haptic {
 // MARK: - Colors
 func priorityColor(_ p: Priority) -> Color {
     switch p {
-    case .high:   return Color(red: 1.0, green: 0.27, blue: 0.27)
-    case .medium: return Color(red: 1.0, green: 0.6, blue: 0.2)
-    case .low:    return Color(red: 0.35, green: 0.55, blue: 1.0)
+    case .high:   return Color(red: 1.0, green: 0.27, blue: 0.27)  // red
+    case .medium: return Color(red: 1.0, green: 0.7, blue: 0.2)    // amber
+    case .low:    return Color(red: 0.35, green: 0.55, blue: 1.0)   // blue
     }
 }
 
@@ -76,17 +76,9 @@ struct PulseEffect: ViewModifier {
 
 // MARK: - App Background
 struct AppBackground: View {
-    var tint: Color = Color(red: 0.06, green: 0.04, blue: 0.12)
     var body: some View {
-        ZStack {
-            Color.black
-            LinearGradient(
-                colors: [tint, Color(red: 0.02, green: 0.02, blue: 0.05), .black],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        }
-        .ignoresSafeArea()
+        Color.black
+            .ignoresSafeArea()
     }
 }
 

@@ -82,7 +82,8 @@ struct KillSheet: View {
                 // Action buttons
                 VStack(spacing: 12) {
                     Button {
-                        Haptic.error()
+                        Haptic.heavy()
+                        Haptic.warning()
                         project.status = .killed
                         project.killReason = reason.isEmpty ? nil : reason
                         isPresented = false
