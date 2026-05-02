@@ -369,7 +369,6 @@ struct FocusCard: View {
                         Text(rank == 1 ? "LIVE" : "QUEUED")
                             .font(.system(size: 10, weight: .bold, design: .monospaced))
                             .foregroundColor(rank == 1 ? accent : .white.opacity(0.4))
-                            .uppercaseSmallCaps()
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
