@@ -46,6 +46,7 @@ struct FocusQueueView: View {
     @State private var showBrainDump = false
     @State private var showWeeklyReview = false
     @State private var appeared = false
+    @State private var isAIOpinionExpanded = false
 
     var activeProjects: [Project] {
         allProjects.filter { $0.status != .killed && $0.status != .shipped }
@@ -80,7 +81,6 @@ struct FocusQueueView: View {
                     headerSection
                     actionBar
                     workloadBar
-                    aiOpinionCard
 
                     if focusItems.isEmpty {
                         emptyState
@@ -102,6 +102,9 @@ struct FocusQueueView: View {
                             }
                         }
                     }
+
+                    aiOpinionCard
+                        .padding(.top, 8)
                 }
                 .padding(.bottom, 100)
             }
@@ -217,66 +220,124 @@ struct FocusQueueView: View {
 
     var aiOpinionCard: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                HStack(spacing: 8) {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 14))
-                    Text("AI STRATEGY INTEL")
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
-                        .tracking(2)
+            Button {
+                Haptic.light()
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                    isAIOpinionExpanded.toggle()
                 }
-                .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0))
-
-                Spacer()
-
-                if aiService.isLoading {
-                    ProgressView()
-                        .scaleEffect(0.7)
-                        .tint(Color(red: 0.4, green: 0.8, blue: 1.0))
-                } else {
-                    Button {
-                        Haptic.medium()
-                        Task { await aiService.analyze(projects: allProjects, skills: allSkills) }
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "arrow.triangle.2.circlepath")
-                                .font(.system(size: 10, weight: .bold))
-                            Text("ANALYZE")
-                                .font(.system(size: 10, weight: .bold, design: .monospaced))
-                        }
-                        .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.1))
+            } label: {
+                HStack {
+                    HStack(spacing: 8) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 14))
+                        Text("AI STRATEGY INTEL")
+                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                            .tracking(2)
                     }
-                    .buttonStyle(ScaleButtonStyle())
+                    .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0))
+
+                    Spacer()
+
+                    Image(systemName: isAIOpinionExpanded ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.6))
                 }
             }
+            .buttonStyle(.plain)
 
             if let analysis = aiService.lastAnalysis {
-                Text(analysis.opinion)
-                    .font(.system(size: 13, design: .monospaced))
-                    .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.8))
-                    .lineSpacing(6)
-                    .fixedSize(horizontal: false, vertical: true)
+                Button {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        isAIOpinionExpanded.toggle()
+                    }
+                } label: {
+                    Text(analysis.opinion)
+                        .font(.system(size: 13, design: .monospaced))
+                        .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.8))
+                        .lineSpacing(6)
+                        .lineLimit(isAIOpinionExpanded ? nil : 2)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.plain)
 
-                if let updated = aiService.lastUpdated {
-                    Text("analyzed \(updated.formatted(.relative(presentation: .named)))")
-                        .font(.system(size: 11, design: .monospaced))
-                        .foregroundColor(.white.opacity(0.3))
+                if isAIOpinionExpanded {
+                    HStack {
+                        if let updated = aiService.lastUpdated {
+                            Text("analyzed \(updated.formatted(.relative(presentation: .named)))")
+                                .font(.system(size: 11, design: .monospaced))
+                                .foregroundColor(.white.opacity(0.3))
+                        }
+                        
+                        Spacer()
+                        
+                        if aiService.isLoading {
+                            ProgressView()
+                                .scaleEffect(0.7)
+                                .tint(Color(red: 0.4, green: 0.8, blue: 1.0))
+                        } else {
+                            Button {
+                                Haptic.medium()
+                                Task { await aiService.analyze(projects: allProjects, skills: allSkills) }
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "arrow.triangle.2.circlepath")
+                                        .font(.system(size: 10, weight: .bold))
+                                    Text("RE-ANALYZE")
+                                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                }
+                                .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.1))
+                            }
+                            .buttonStyle(ScaleButtonStyle())
+                        }
+                    }
+                    .padding(.top, 4)
                 }
             } else if let err = aiService.errorMessage {
                 Text(err)
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.red.opacity(0.8))
+                    .lineLimit(isAIOpinionExpanded ? nil : 2)
             } else if !aiService.hasKey {
                 Text("Add your Groq API key in Settings to get AI-powered priority analysis.")
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.white.opacity(0.4))
+                    .lineLimit(isAIOpinionExpanded ? nil : 2)
             } else {
-                Text("Tap ANALYZE to get AI recommendations.")
-                    .font(.system(size: 13, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.4))
+                HStack {
+                    Text("Ready for analysis.")
+                        .font(.system(size: 13, design: .monospaced))
+                        .foregroundColor(.white.opacity(0.4))
+                    
+                    Spacer()
+                    
+                    if aiService.isLoading {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                            .tint(Color(red: 0.4, green: 0.8, blue: 1.0))
+                    } else {
+                        Button {
+                            Haptic.medium()
+                            Task { await aiService.analyze(projects: allProjects, skills: allSkills) }
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "arrow.triangle.2.circlepath")
+                                    .font(.system(size: 10, weight: .bold))
+                                Text("ANALYZE")
+                                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                            }
+                            .foregroundColor(Color(red: 0.4, green: 0.8, blue: 1.0))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.1))
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                    }
+                }
             }
         }
         .padding(20)
