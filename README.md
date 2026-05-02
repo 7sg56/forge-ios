@@ -11,6 +11,22 @@ Stack: SwiftUI . SwiftData . Groq (Llama 3.3 70B) . iOS 17+
 
 Forge is a personal developer OS for builders who track too many things and finish too few. It enforces a hard cap of **3 active projects** and **2 active skills** at a time, forcing you to prioritize ruthlessly. An AI-powered Focus Queue ranks everything together and tells you exactly what to work on next.
 
+## Screenshots
+
+<p align="center">
+  <img src="assets/loader.png" width="200" alt="Launch Screen" />
+  <img src="assets/focus-page.png" width="200" alt="Focus Queue" />
+  <img src="assets/projects-page.png" width="200" alt="Projects" />
+</p>
+<p align="center">
+  <img src="assets/skills-page.png" width="200" alt="Skills" />
+  <img src="assets/stats-page.png" width="200" alt="Stats" />
+  <img src="assets/weekly-review.png" width="200" alt="Weekly Review" />
+</p>
+<p align="center">
+  <sub>Launch -- Focus Queue -- Projects -- Skills -- Stats -- Weekly AI Review</sub>
+</p>
+
 ## Core Features
 
 - **3-Slot Project Constraint** -- You can only have 3 active projects at any time. Want to start something new? Ship or kill something first.
