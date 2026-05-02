@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FORGE - Stats</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#889299",
+                    "surface-container-highest": "#313539",
+                    "on-secondary-fixed": "#410004",
+                    "surface-variant": "#313539",
+                    "on-primary": "#003549",
+                    "on-secondary-fixed-variant": "#930012",
+                    "error": "#ffb4ab",
+                    "tertiary": "#ffd6a5",
+                    "on-tertiary-container": "#6f4600",
+                    "tertiary-fixed-dim": "#ffb95a",
+                    "surface-bright": "#353a3d",
+                    "primary": "#b6e3ff",
+                    "on-secondary": "#68000a",
+                    "outline-variant": "#3e484e",
+                    "on-tertiary": "#462a00",
+                    "on-primary-fixed": "#001e2c",
+                    "surface-container-high": "#262b2e",
+                    "on-secondary-container": "#ffc2bd",
+                    "surface-tint": "#79d1ff",
+                    "tertiary-container": "#fcb24a",
+                    "surface-dim": "#0f1417",
+                    "inverse-primary": "#006689",
+                    "on-error": "#690005",
+                    "inverse-on-surface": "#2c3134",
+                    "on-tertiary-fixed-variant": "#643f00",
+                    "secondary": "#ffb3ad",
+                    "primary-fixed": "#c3e8ff",
+                    "secondary-fixed": "#ffdad7",
+                    "on-tertiary-fixed": "#2a1800",
+                    "surface-container-low": "#181c1f",
+                    "inverse-surface": "#dfe3e7",
+                    "on-surface-variant": "#bec8d0",
+                    "on-error-container": "#ffdad6",
+                    "on-primary-container": "#005573",
+                    "error-container": "#93000a",
+                    "secondary-fixed-dim": "#ffb3ad",
+                    "on-background": "#dfe3e7",
+                    "secondary-container": "#b6021a",
+                    "on-primary-fixed-variant": "#004c68",
+                    "tertiary-fixed": "#ffddb6",
+                    "surface": "#0f1417",
+                    "on-surface": "#dfe3e7",
+                    "primary-fixed-dim": "#79d1ff",
+                    "background": "#0f1417",
+                    "primary-container": "#66ccff",
+                    "surface-container-lowest": "#0a0f12",
+                    "surface-container": "#1c2023"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "safe_area": "20px",
+                    "unit": "4px",
+                    "lg": "24px",
+                    "xs": "4px",
+                    "md": "16px",
+                    "sm": "8px",
+                    "xl": "32px"
+            },
+            "fontFamily": {
+                    "body-mono": [
+                            "JetBrains Mono", "SF Mono", "monospace"
+                    ],
+                    "label-caps": [
+                            "JetBrains Mono", "SF Mono", "monospace"
+                    ],
+                    "h2": [
+                            "Space Grotesk", "sans-serif"
+                    ],
+                    "code-sm": [
+                            "JetBrains Mono", "SF Mono", "monospace"
+                    ],
+                    "h1": [
+                            "Space Grotesk", "sans-serif"
+                    ]
+            },
+            "fontSize": {
+                    "body-mono": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "letterSpacing": "0em",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-caps": [
+                            "10px",
+                            {
+                                    "lineHeight": "1",
+                                    "letterSpacing": "0.1em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "h2": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "code-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "letterSpacing": "0.02em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "h1": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Custom Utilities for strict grid and borders */
+        .border-technical {
+            border: 1px solid #222222;
+        }
+        .border-green-technical {
+            border: 1px solid #22C55E;
+        }
+        .border-red-technical {
+            border: 1px solid #EF4444;
+        }
+        .border-orange-technical {
+            border: 1px solid #F97316;
+        }
+        .border-cyan-technical {
+            border: 1px solid #22D3EE;
+        }
+        
+        .pulse-dot-green {
+            width: 6px;
+            height: 6px;
+            background-color: #22C55E;
+            border-radius: 50%;
+            animation: pulse 2s infinite ease-in-out;
+        }
+        
+        .bg-card-gradient {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.02) 0%, rgba(0,0,0,1) 100%);
+        }
+        .bg-red-card-gradient {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.02) 0%, rgba(0,0,0,1) 100%);
+        }
+        .bg-orange-card-gradient {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.02) 0%, rgba(0,0,0,1) 100%);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        
+        /* Arc Utilities */
+        .arc-container {
+            width: 64px;
+            height: 64px;
+            position: relative;
+        }
+        .arc-bg {
+            fill: none;
+            stroke: #111111;
+            stroke-width: 2;
+        }
+        .arc-fg {
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: butt;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-black text-on-surface min-h-screen relative font-body-mono pb-24 md:pb-0 md:pt-24 selection:bg-surface-tint selection:text-black">
+<!-- TopAppBar (WEB) -->
+<header class="hidden md:flex justify-between items-center px-6 py-4 w-full z-50 fixed top-0 border-b border-zinc-800 bg-black/80 backdrop-blur-md">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-sky-400">terminal</span>
+<span class="font-['Space_Grotesk'] uppercase tracking-[0.3em] font-black text-xl text-sky-400">FORGE</span>
+</div>
+<nav class="flex gap-8">
+<a class="text-zinc-500 hover:text-sky-300 transition-colors font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter" href="#">Focus</a>
+<a class="text-zinc-500 hover:text-sky-300 transition-colors font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter" href="#">Projects</a>
+<a class="text-zinc-500 hover:text-sky-300 transition-colors font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter" href="#">Skills</a>
+<a class="text-sky-400 border-b-2 border-sky-400 font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter pb-1" href="#">Stats</a>
+</nav>
+<span class="material-symbols-outlined text-sky-400">settings</span>
+</header>
+<!-- TopAppBar (MOBILE FALLBACK - Header only) -->
+<header class="md:hidden flex justify-between items-center px-6 py-4 w-full z-50 border-b border-zinc-800 bg-black">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-sky-400">terminal</span>
+<span class="font-['Space_Grotesk'] uppercase tracking-[0.3em] font-black text-xl text-sky-400">FORGE</span>
+</div>
+<span class="material-symbols-outlined text-sky-400">settings</span>
+</header>
+<!-- Main Content Canvas -->
+<main class="w-full max-w-5xl mx-auto px-safe_area pt-safe_area pb-xl md:pt-lg relative z-10 flex flex-col gap-lg">
+<!-- Header Section -->
+<div class="flex flex-col gap-xs mb-sm">
+<h1 class="font-h1 text-h1 text-on-surface">Momentum Dashboard</h1>
+<p class="font-code-sm text-code-sm text-outline">Real-time performance telemetry. All systems operational.</p>
+</div>
+<!-- Big Counters (Bento Grid) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Shipped -->
+<div class="bg-black border-technical p-md flex flex-col gap-md relative overflow-hidden bg-card-gradient">
+<div class="flex justify-between items-center z-10">
+<span class="font-label-caps text-label-caps text-outline uppercase">Shipped</span>
+<span class="material-symbols-outlined text-[#22C55E]" style="font-variation-settings: 'FILL' 1;">deployed_code</span>
+</div>
+<div class="flex items-baseline gap-sm z-10">
+<span class="font-h1 text-[48px] font-bold tracking-tighter text-[#22C55E] leading-none">124</span>
+<span class="font-code-sm text-code-sm text-outline">+12 this week</span>
+</div>
+<!-- Abstract decorative BG line -->
+<div class="absolute -right-4 -bottom-4 w-32 h-32 border border-[#22C55E]/20 rounded-full opacity-50"></div>
+</div>
+<!-- Killed -->
+<div class="bg-black border-technical p-md flex flex-col gap-md relative overflow-hidden bg-red-card-gradient">
+<div class="flex justify-between items-center z-10">
+<span class="font-label-caps text-label-caps text-outline uppercase">Killed</span>
+<span class="material-symbols-outlined text-[#EF4444]" style="font-variation-settings: 'FILL' 1;">delete_forever</span>
+</div>
+<div class="flex items-baseline gap-sm z-10">
+<span class="font-h1 text-[48px] font-bold tracking-tighter text-[#EF4444] leading-none">18</span>
+<span class="font-code-sm text-code-sm text-outline">Resource freed</span>
+</div>
+<!-- Abstract decorative BG line -->
+<div class="absolute -right-4 -bottom-4 w-32 h-32 border border-[#EF4444]/20 rounded-none opacity-50 rotate-45"></div>
+</div>
+<!-- Acquired -->
+<div class="bg-black border-technical p-md flex flex-col gap-md relative overflow-hidden bg-orange-card-gradient">
+<div class="flex justify-between items-center z-10">
+<span class="font-label-caps text-label-caps text-outline uppercase">Acquired</span>
+<span class="material-symbols-outlined text-[#F97316]" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+</div>
+<div class="flex items-baseline gap-sm z-10">
+<span class="font-h1 text-[48px] font-bold tracking-tighter text-[#F97316] leading-none">4</span>
+<span class="font-code-sm text-code-sm text-outline">New capabilities</span>
+</div>
+<!-- Abstract decorative BG line -->
+<div class="absolute -right-8 -top-8 w-32 h-32 border-2 border-[#F97316]/20 rounded-sm opacity-50"></div>
+</div>
+</div>
+<!-- Middle Row: Workload & Rates -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Active Workload -->
+<div class="bg-black border-technical p-md flex flex-col gap-md">
+<div class="flex items-center gap-sm">
+<div class="pulse-dot-green"></div>
+<span class="font-label-caps text-label-caps text-on-surface uppercase">Active Workload</span>
+</div>
+<div class="flex flex-col gap-sm mt-sm">
+<!-- Project Chip -->
+<div class="border-technical p-sm flex justify-between items-center bg-[#080808]">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline text-[16px]">folder_open</span>
+<span class="font-code-sm text-code-sm text-on-surface">Projects Active</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="font-body-mono text-body-mono text-primary-container">2</span>
+<span class="font-code-sm text-code-sm text-outline">/3</span>
+</div>
+</div>
+<!-- Skills Chip -->
+<div class="border-technical p-sm flex justify-between items-center bg-[#080808]">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline text-[16px]">terminal</span>
+<span class="font-code-sm text-code-sm text-on-surface">Skills Engaged</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="font-body-mono text-body-mono text-primary-container">2</span>
+<span class="font-code-sm text-code-sm text-outline">/2</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Rate Cards -->
+<div class="grid grid-cols-2 gap-md">
+<!-- Ship Rate -->
+<div class="bg-black border-technical p-md flex flex-col justify-between items-center text-center">
+<span class="font-label-caps text-label-caps text-outline uppercase mb-sm">Ship Rate</span>
+<div class="arc-container flex items-center justify-center">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 64 64">
+<circle class="arc-bg" cx="32" cy="32" r="28"></circle>
+<circle class="arc-fg" cx="32" cy="32" r="28" stroke="#22C55E" stroke-dasharray="175.93" stroke-dashoffset="102.04"></circle> <!-- 42% -->
+</svg>
+<span class="absolute font-code-sm text-code-sm text-on-surface font-bold">42%</span>
+</div>
+</div>
+<!-- Kill Rate -->
+<div class="bg-black border-technical p-md flex flex-col justify-between items-center text-center">
+<span class="font-label-caps text-label-caps text-outline uppercase mb-sm">Kill Rate</span>
+<div class="arc-container flex items-center justify-center">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 64 64">
+<circle class="arc-bg" cx="32" cy="32" r="28"></circle>
+<circle class="arc-fg" cx="32" cy="32" r="28" stroke="#EF4444" stroke-dasharray="175.93" stroke-dashoffset="149.54"></circle> <!-- 15% -->
+</svg>
+<span class="absolute font-code-sm text-code-sm text-on-surface font-bold">15%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Milestones Timeline -->
+<div class="bg-black border-technical p-md flex flex-col gap-lg mt-md">
+<span class="font-label-caps text-label-caps text-outline uppercase">Milestones Timeline</span>
+<div class="flex flex-col relative pl-md">
+<!-- Vertical Line Pipeline -->
+<div class="absolute left-[7px] top-2 bottom-2 w-[1px] bg-[#222222]"></div>
+<!-- Milestone 1 (Completed) -->
+<div class="flex items-start gap-md mb-lg relative">
+<div class="absolute -left-[14px] top-1 w-[6px] h-[6px] bg-[#22C55E] rounded-full z-10 shadow-[0_0_8px_#22C55E]"></div>
+<div class="w-24 shrink-0 font-code-sm text-code-sm text-outline opacity-50 rotate-180" style="writing-mode: vertical-rl;">2024.10.15</div>
+<div class="flex flex-col gap-xs flex-1 border border-[#222222] bg-[#080808] p-sm">
+<span class="font-body-mono text-body-mono text-on-surface">Core Infrastructure Deployed</span>
+<span class="font-code-sm text-code-sm text-outline">Phase 1 complete. Systems nominal.</span>
+</div>
+</div>
+<!-- Milestone 2 (Current) -->
+<div class="flex items-start gap-md mb-lg relative">
+<div class="absolute -left-[14px] top-1 w-[6px] h-[6px] bg-[#22D3EE] rounded-full z-10 shadow-[0_0_8px_#22D3EE]"></div>
+<div class="w-24 shrink-0 font-code-sm text-code-sm text-primary-container font-bold rotate-180" style="writing-mode: vertical-rl;">2024.11.01</div>
+<div class="flex flex-col gap-xs flex-1 border border-cyan-technical bg-[#080808] p-sm">
+<span class="font-body-mono text-body-mono text-on-surface">Data Integration Module</span>
+<span class="font-code-sm text-code-sm text-outline">Processing incoming telemetry.</span>
+</div>
+</div>
+<!-- Milestone 3 (Pending) -->
+<div class="flex items-start gap-md relative">
+<div class="absolute -left-[14px] top-1 w-[6px] h-[6px] bg-[#444444] rounded-full z-10"></div>
+<div class="w-24 shrink-0 font-code-sm text-code-sm text-outline opacity-30 rotate-180" style="writing-mode: vertical-rl;">2024.12.15</div>
+<div class="flex flex-col gap-xs flex-1 border border-[#222222] bg-transparent p-sm opacity-50">
+<span class="font-body-mono text-body-mono text-on-surface">UI V2 Overhaul</span>
+<span class="font-code-sm text-code-sm text-outline">Awaiting resource allocation.</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (MOBILE) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center bg-black border-t border-zinc-800">
+<a class="flex flex-col items-center justify-center text-zinc-600 py-2 w-full hover:bg-zinc-900" href="#">
+<span class="material-symbols-outlined">target</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter mt-1">Focus</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-600 py-2 w-full hover:bg-zinc-900" href="#">
+<span class="material-symbols-outlined">folder_open</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter mt-1">Projects</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-600 py-2 w-full hover:bg-zinc-900" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter mt-1">Skills</span>
+</a>
+<a class="flex flex-col items-center justify-center text-sky-400 border-t-2 border-sky-400 bg-zinc-900/50 py-2 w-full" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bar_chart</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter mt-1">Stats</span>
+</a>
+</nav>
+</body></html>

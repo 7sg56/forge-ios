@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FORGE - Focus</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @font-face {
+            font-family: 'SF Mono';
+            src: local('SF Mono'), local('SFMono-Regular');
+            /* Fallback to system monospace if SF Mono isn't available */
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+        
+        .pulse-dot {
+            animation: pulse-opacity 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-opacity {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#889299",
+                    "surface-container-highest": "#313539",
+                    "on-secondary-fixed": "#410004",
+                    "surface-variant": "#313539",
+                    "on-primary": "#003549",
+                    "on-secondary-fixed-variant": "#930012",
+                    "error": "#ffb4ab",
+                    "tertiary": "#ffd6a5",
+                    "on-tertiary-container": "#6f4600",
+                    "tertiary-fixed-dim": "#ffb95a",
+                    "surface-bright": "#353a3d",
+                    "primary": "#b6e3ff",
+                    "on-secondary": "#68000a",
+                    "outline-variant": "#3e484e",
+                    "on-tertiary": "#462a00",
+                    "on-primary-fixed": "#001e2c",
+                    "surface-container-high": "#262b2e",
+                    "on-secondary-container": "#ffc2bd",
+                    "surface-tint": "#79d1ff",
+                    "tertiary-container": "#fcb24a",
+                    "surface-dim": "#0f1417",
+                    "inverse-primary": "#006689",
+                    "on-error": "#690005",
+                    "inverse-on-surface": "#2c3134",
+                    "on-tertiary-fixed-variant": "#643f00",
+                    "secondary": "#ffb3ad",
+                    "primary-fixed": "#c3e8ff",
+                    "secondary-fixed": "#ffdad7",
+                    "on-tertiary-fixed": "#2a1800",
+                    "surface-container-low": "#181c1f",
+                    "inverse-surface": "#dfe3e7",
+                    "on-surface-variant": "#bec8d0",
+                    "on-error-container": "#ffdad6",
+                    "on-primary-container": "#005573",
+                    "error-container": "#93000a",
+                    "secondary-fixed-dim": "#ffb3ad",
+                    "on-background": "#dfe3e7",
+                    "secondary-container": "#b6021a",
+                    "on-primary-fixed-variant": "#004c68",
+                    "tertiary-fixed": "#ffddb6",
+                    "surface": "#0f1417",
+                    "on-surface": "#dfe3e7",
+                    "primary-fixed-dim": "#79d1ff",
+                    "background": "#0f1417",
+                    "primary-container": "#66ccff",
+                    "surface-container-lowest": "#0a0f12",
+                    "surface-container": "#1c2023"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "safe_area": "20px",
+                    "unit": "4px",
+                    "lg": "24px",
+                    "xs": "4px",
+                    "md": "16px",
+                    "sm": "8px",
+                    "xl": "32px"
+            },
+            "fontFamily": {
+                    "body-mono": [
+                            "SF Mono", "JetBrains Mono", "monospace"
+                    ],
+                    "label-caps": [
+                            "SF Mono", "JetBrains Mono", "monospace"
+                    ],
+                    "h2": [
+                            "Space Grotesk", "sans-serif"
+                    ],
+                    "code-sm": [
+                            "SF Mono", "JetBrains Mono", "monospace"
+                    ],
+                    "h1": [
+                            "Space Grotesk", "sans-serif"
+                    ]
+            },
+            "fontSize": {
+                    "body-mono": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "letterSpacing": "0em",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-caps": [
+                            "10px",
+                            {
+                                    "lineHeight": "1",
+                                    "letterSpacing": "0.1em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "h2": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "code-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "letterSpacing": "0.02em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "h1": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-black text-on-surface min-h-screen flex flex-col pt-20 pb-20 md:pb-0">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full border-b border-zinc-800 bg-black/80 backdrop-blur-md z-50">
+<div class="flex justify-between items-center px-6 py-4 w-full z-50">
+<div class="flex items-center gap-4">
+<button class="text-sky-400 hover:text-sky-300 transition-colors">
+<span class="material-symbols-outlined">terminal</span>
+</button>
+<h1 class="font-['Space_Grotesk'] uppercase tracking-widest font-bold text-xl tracking-[0.3em] text-sky-400">FORGE</h1>
+</div>
+<div class="hidden md:flex gap-8">
+<a class="text-sky-400 border-b-2 border-sky-400 font-['Space_Grotesk'] uppercase tracking-widest font-bold text-sm pb-1" href="#">Focus</a>
+<a class="text-zinc-500 hover:text-sky-300 transition-colors font-['Space_Grotesk'] uppercase tracking-widest font-bold text-sm pb-1" href="#">Projects</a>
+<a class="text-zinc-500 hover:text-sky-300 transition-colors font-['Space_Grotesk'] uppercase tracking-widest font-bold text-sm pb-1" href="#">Skills</a>
+<a class="text-zinc-500 hover:text-sky-300 transition-colors font-['Space_Grotesk'] uppercase tracking-widest font-bold text-sm pb-1" href="#">Stats</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="font-label-caps text-label-caps uppercase border border-[#222222] px-3 py-1 text-on-surface hover:bg-[#111111] transition-colors rounded-none">
+                    Kill Log
+                </button>
+<button class="text-sky-400 hover:text-sky-300 transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-grow p-safe_area max-w-5xl mx-auto w-full">
+<div class="mb-lg">
+<h2 class="font-h1 text-h1 text-on-surface mb-unit">Active Vectors</h2>
+<p class="font-body-mono text-body-mono text-outline">Monitoring primary project streams.</p>
+</div>
+<!-- Project Slots Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+<!-- Project 1: Forge (Building) -->
+<div class="bg-black border border-[#222222] rounded-none p-lg relative overflow-hidden group hover:bg-[#111111] transition-colors h-64 flex flex-col justify-between" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(0,0,0,0) 40%);">
+<!-- Status & Priority -->
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-2 border border-primary-container px-2 py-1 bg-black">
+<div class="w-2 h-2 rounded-full bg-primary-container pulse-dot"></div>
+<span class="font-label-caps text-label-caps text-primary-container uppercase">Building</span>
+</div>
+<div class="px-2 py-1 bg-error/10 border border-error">
+<span class="font-label-caps text-label-caps text-error uppercase">High Priority</span>
+</div>
+</div>
+<!-- Content -->
+<div>
+<h3 class="font-h2 text-h2 text-on-surface mb-sm">Forge Core</h3>
+<p class="font-body-mono text-body-mono text-outline-variant mb-md">Re-architecting the main event loop for lower latency.</p>
+</div>
+<!-- Footer / Metrics -->
+<div class="border-t border-[#222222] pt-sm mt-auto flex justify-between items-center">
+<div class="font-code-sm text-code-sm text-outline flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 16px;">commit</span>
+                        v1.4.2
+                    </div>
+<div class="font-code-sm text-code-sm text-outline">
+                        T-48h
+                    </div>
+</div>
+<!-- Active Elevation Border (Simulated via overlay) -->
+<div class="absolute inset-0 border border-primary-container opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+</div>
+<!-- Project 2: Echo (Validating) -->
+<div class="bg-black border border-[#222222] rounded-none p-lg relative overflow-hidden group hover:bg-[#111111] transition-colors h-64 flex flex-col justify-between" style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(0,0,0,0) 40%);">
+<!-- Status & Priority -->
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-2 border border-tertiary px-2 py-1 bg-black">
+<div class="w-2 h-2 rounded-full bg-tertiary pulse-dot"></div>
+<span class="font-label-caps text-label-caps text-tertiary uppercase">Validating</span>
+</div>
+<div class="px-2 py-1 bg-tertiary-container/10 border border-tertiary-container">
+<span class="font-label-caps text-label-caps text-tertiary-container uppercase">Med Priority</span>
+</div>
+</div>
+<!-- Content -->
+<div>
+<h3 class="font-h2 text-h2 text-on-surface mb-sm">Echo Protocol</h3>
+<p class="font-body-mono text-body-mono text-outline-variant mb-md">Testing distributed consensus mechanics under simulated load.</p>
+</div>
+<!-- Footer / Metrics -->
+<div class="border-t border-[#222222] pt-sm mt-auto flex justify-between items-center">
+<div class="font-code-sm text-code-sm text-outline flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 16px;">biotech</span>
+                        Test-Net
+                    </div>
+<div class="font-code-sm text-code-sm text-outline">
+                        98% Cov
+                    </div>
+</div>
+<!-- Active Elevation Border (Simulated via overlay) -->
+<div class="absolute inset-0 border border-tertiary opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+</div>
+<!-- Project 3: Empty Slot -->
+<button class="bg-black border border-dashed border-[#444444] rounded-none p-lg relative overflow-hidden hover:bg-[#111111] transition-colors h-64 flex flex-col justify-center items-center group active:scale-[0.98]">
+<div class="w-12 h-12 border border-[#444444] flex items-center justify-center mb-md group-hover:border-primary-container transition-colors">
+<span class="material-symbols-outlined text-[#444444] group-hover:text-primary-container transition-colors">add</span>
+</div>
+<span class="font-label-caps text-label-caps text-outline group-hover:text-primary-container transition-colors uppercase tracking-widest">Initialize Vector</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center bg-black border-t border-zinc-800">
+<button class="flex flex-col items-center justify-center text-sky-400 border-t-2 border-sky-400 bg-zinc-900/50 py-2 w-full active:scale-[0.95] transition-transform">
+<span class="material-symbols-outlined mb-1">target</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter">Focus</span>
+</button>
+<button class="flex flex-col items-center justify-center text-zinc-600 py-2 w-full hover:bg-zinc-900 active:scale-[0.95] transition-all">
+<span class="material-symbols-outlined mb-1">folder_open</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter">Projects</span>
+</button>
+<button class="flex flex-col items-center justify-center text-zinc-600 py-2 w-full hover:bg-zinc-900 active:scale-[0.95] transition-all">
+<span class="material-symbols-outlined mb-1">terminal</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter">Skills</span>
+</button>
+<button class="flex flex-col items-center justify-center text-zinc-600 py-2 w-full hover:bg-zinc-900 active:scale-[0.95] transition-all">
+<span class="material-symbols-outlined mb-1">bar_chart</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter">Stats</span>
+</button>
+</nav>
+</body></html>

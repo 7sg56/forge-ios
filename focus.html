@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FORGE - Focus Queue View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline": "#889299",
+                      "surface-container-highest": "#313539",
+                      "on-secondary-fixed": "#410004",
+                      "surface-variant": "#313539",
+                      "on-primary": "#003549",
+                      "on-secondary-fixed-variant": "#930012",
+                      "error": "#ffb4ab",
+                      "tertiary": "#ffd6a5",
+                      "on-tertiary-container": "#6f4600",
+                      "tertiary-fixed-dim": "#ffb95a",
+                      "surface-bright": "#353a3d",
+                      "primary": "#b6e3ff",
+                      "on-secondary": "#68000a",
+                      "outline-variant": "#3e484e",
+                      "on-tertiary": "#462a00",
+                      "on-primary-fixed": "#001e2c",
+                      "surface-container-high": "#262b2e",
+                      "on-secondary-container": "#ffc2bd",
+                      "surface-tint": "#79d1ff",
+                      "tertiary-container": "#fcb24a",
+                      "surface-dim": "#0f1417",
+                      "inverse-primary": "#006689",
+                      "on-error": "#690005",
+                      "inverse-on-surface": "#2c3134",
+                      "on-tertiary-fixed-variant": "#643f00",
+                      "secondary": "#ffb3ad",
+                      "primary-fixed": "#c3e8ff",
+                      "secondary-fixed": "#ffdad7",
+                      "on-tertiary-fixed": "#2a1800",
+                      "surface-container-low": "#181c1f",
+                      "inverse-surface": "#dfe3e7",
+                      "on-surface-variant": "#bec8d0",
+                      "on-error-container": "#ffdad6",
+                      "on-primary-container": "#005573",
+                      "error-container": "#93000a",
+                      "secondary-fixed-dim": "#ffb3ad",
+                      "on-background": "#dfe3e7",
+                      "secondary-container": "#b6021a",
+                      "on-primary-fixed-variant": "#004c68",
+                      "tertiary-fixed": "#ffddb6",
+                      "surface": "#0f1417",
+                      "on-surface": "#dfe3e7",
+                      "primary-fixed-dim": "#79d1ff",
+                      "background": "#0f1417",
+                      "primary-container": "#66ccff",
+                      "surface-container-lowest": "#0a0f12",
+                      "surface-container": "#1c2023"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "16px",
+                      "safe_area": "20px",
+                      "unit": "4px",
+                      "lg": "24px",
+                      "xs": "4px",
+                      "md": "16px",
+                      "sm": "8px",
+                      "xl": "32px"
+              },
+              "fontFamily": {
+                      "body-mono": [
+                              "JetBrains Mono", "SF Mono"
+                      ],
+                      "label-caps": [
+                              "JetBrains Mono", "SF Mono"
+                      ],
+                      "h2": [
+                              "Space Grotesk"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono", "SF Mono"
+                      ],
+                      "h1": [
+                              "Space Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "body-mono": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "letterSpacing": "0em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "10px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "h2": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "code-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "h1": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-mono pb-24 pt-20 flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full border-b border-zinc-800 bg-black/80 backdrop-blur-md flex justify-between items-center px-6 py-4 z-50">
+<div class="flex items-center gap-sm text-sky-400">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">terminal</span>
+<h1 class="font-['Space_Grotesk'] uppercase tracking-widest font-bold text-xl font-black tracking-[0.3em] text-sky-400">FORGE</h1>
+</div>
+<div class="flex items-center gap-md">
+<button class="border border-outline-variant px-md py-sm hover:border-primary-container transition-colors rounded-none flex items-center gap-sm">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Weekly Review</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]" style="font-variation-settings: 'FILL' 0;">history</span>
+</button>
+<button class="text-zinc-500 hover:text-sky-300 transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+</div>
+</header>
+<main class="flex-grow px-safe_area max-w-4xl mx-auto w-full flex flex-col gap-xl">
+<!-- Priority Queue Header -->
+<section class="mt-lg">
+<div class="flex justify-between items-end border-b border-outline-variant pb-sm mb-lg">
+<h2 class="font-h1 text-h1 text-on-surface uppercase tracking-tight">Focus Queue</h2>
+<span class="font-code-sm text-code-sm text-primary-container">AI-RANKED</span>
+</div>
+<!-- Priority List -->
+<div class="flex flex-col gap-md">
+<!-- Rank 1 Card -->
+<div class="bg-black border border-[#222222] relative overflow-hidden flex items-stretch min-h-[100px] hover:border-primary-container transition-colors group">
+<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary-container/10 to-transparent opacity-20 pointer-events-none"></div>
+<div class="w-16 flex flex-col justify-center items-center border-r border-[#222222] bg-surface-container-lowest">
+<span class="font-h1 text-[32px] text-primary-container font-bold leading-none">1</span>
+</div>
+<div class="p-md flex-grow flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<h3 class="font-h2 text-h2 text-on-surface group-hover:text-primary-container transition-colors">Core System Architecture Redesign</h3>
+<div class="flex items-center gap-xs px-sm py-xs border border-primary-container/30 bg-primary-container/10 rounded-none">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span class="font-label-caps text-label-caps text-primary-container uppercase">Live</span>
+</div>
+</div>
+<div class="flex gap-md mt-sm items-center">
+<span class="font-code-sm text-code-sm text-outline-variant flex items-center gap-xs"><span class="material-symbols-outlined text-[14px]">folder_open</span> Project</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant flex items-center gap-xs"><span class="material-symbols-outlined text-[14px]">schedule</span> Est: 14h</span>
+</div>
+</div>
+</div>
+<!-- Rank 2 Card -->
+<div class="bg-black border border-[#222222] relative overflow-hidden flex items-stretch min-h-[100px] hover:border-outline transition-colors group">
+<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-secondary/5 to-transparent opacity-20 pointer-events-none"></div>
+<div class="w-16 flex flex-col justify-center items-center border-r border-[#222222] bg-surface-container-lowest">
+<span class="font-h1 text-[32px] text-on-surface font-bold leading-none opacity-50">2</span>
+</div>
+<div class="p-md flex-grow flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<h3 class="font-h2 text-h2 text-on-surface">Advanced React Native Skill Tree</h3>
+<div class="flex items-center gap-xs px-sm py-xs border border-outline-variant bg-surface-container rounded-none">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<span class="font-label-caps text-label-caps text-outline uppercase">Queued</span>
+</div>
+</div>
+<div class="flex gap-md mt-sm items-center">
+<span class="font-code-sm text-code-sm text-outline-variant flex items-center gap-xs"><span class="material-symbols-outlined text-[14px]">terminal</span> Skill</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant flex items-center gap-xs"><span class="material-symbols-outlined text-[14px]">psychology</span> 85% Mastery</span>
+</div>
+</div>
+</div>
+<!-- Rank 3 Card -->
+<div class="bg-black border border-[#222222] relative overflow-hidden flex items-stretch min-h-[100px] hover:border-outline transition-colors group opacity-80">
+<div class="w-16 flex flex-col justify-center items-center border-r border-[#222222] bg-surface-container-lowest">
+<span class="font-h1 text-[32px] text-on-surface font-bold leading-none opacity-30">3</span>
+</div>
+<div class="p-md flex-grow flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<h3 class="font-h2 text-h2 text-on-surface line-through decoration-outline-variant">Q4 Financial Audit Prep</h3>
+<div class="flex items-center gap-xs px-sm py-xs border border-outline-variant bg-surface-container rounded-none opacity-50">
+<span class="font-label-caps text-label-caps text-outline uppercase">Blocked</span>
+</div>
+</div>
+<div class="flex gap-md mt-sm items-center">
+<span class="font-code-sm text-code-sm text-outline-variant flex items-center gap-xs"><span class="material-symbols-outlined text-[14px]">folder_open</span> Project</span>
+<span class="font-code-sm text-code-sm text-error flex items-center gap-xs"><span class="material-symbols-outlined text-[14px]">warning</span> Dep: HR Review</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- AI Opinion Card -->
+<section class="border border-primary-container bg-black p-lg relative overflow-hidden">
+<div class="absolute top-0 right-0 p-sm opacity-20">
+<span class="material-symbols-outlined text-[64px] text-primary-container">psychology</span>
+</div>
+<div class="flex items-center gap-sm mb-md relative z-10">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">insights</span>
+<h4 class="font-label-caps text-label-caps text-primary-container tracking-widest uppercase">AI Strategy Intel</h4>
+</div>
+<p class="font-body-mono text-body-mono text-primary-fixed-dim max-w-[80%] relative z-10">
+                Workload is heavily skewed towards deep-work architecture. Recommend delaying the skill tree progression to maintain momentum on the core system redesign. Blocked tasks require immediate unblocking to prevent downstream cascading delays.
+            </p>
+</section>
+<!-- Action Buttons -->
+<section class="flex gap-md mt-auto">
+<button class="flex-1 bg-surface-container border border-outline-variant hover:border-primary-container hover:bg-surface-container-high transition-colors py-md px-lg flex items-center justify-center gap-sm active:scale-[0.98] rounded-none group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary-container transition-colors">note_add</span>
+<span class="font-code-sm text-code-sm text-on-surface uppercase font-bold group-hover:text-primary-container transition-colors">Brain Dump</span>
+</button>
+<button class="flex-1 bg-primary-container text-[#000000] border border-primary-container hover:bg-primary-fixed transition-colors py-md px-lg flex items-center justify-center gap-sm active:scale-[0.98] rounded-none group">
+<span class="material-symbols-outlined text-[#000000]">forum</span>
+<span class="font-code-sm text-code-sm uppercase font-bold text-[#000000]">Weekly Coaching</span>
+</button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center bg-black border-t border-zinc-800 hidden md:hidden">
+<a class="flex flex-col items-center justify-center text-sky-400 border-t-2 border-sky-400 bg-zinc-900/50 py-2 w-full hover:bg-zinc-900 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">target</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter">Focus</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-600 py-2 w-full hover:bg-zinc-900 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">folder_open</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter">Projects</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-600 py-2 w-full hover:bg-zinc-900 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter">Skills</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-600 py-2 w-full hover:bg-zinc-900 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter">Stats</span>
+</a>
+</nav>
+<!-- Web Bottom Nav replacement (since md:hidden above) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 justify-around items-center bg-black border-t border-zinc-800 hidden md:flex">
+<a class="flex flex-col items-center justify-center text-sky-400 border-t-2 border-sky-400 bg-zinc-900/50 py-2 w-full hover:bg-zinc-900 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">target</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter">Focus</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-600 py-2 w-full hover:bg-zinc-900 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">folder_open</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter">Projects</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-600 py-2 w-full hover:bg-zinc-900 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter">Skills</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-600 py-2 w-full hover:bg-zinc-900 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-medium tracking-tighter">Stats</span>
+</a>
+</nav>
+</body></html>
