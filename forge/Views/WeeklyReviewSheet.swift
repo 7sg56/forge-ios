@@ -193,7 +193,7 @@ struct WeeklyReviewSheet: View {
                 }
 
                 if !r.shouldKill.isEmpty {
-                    reviewSection("RECOMMENDED TERMINATION", items: r.shouldKill, color: .red, icon: "xmark.circle")
+                    reviewSection("NEEDS DECISION", items: r.shouldKill, color: Color(red: 1.0, green: 0.5, blue: 0.2), icon: "exclamationmark.octagon")
                 }
 
                 if !r.shouldStart.isEmpty {

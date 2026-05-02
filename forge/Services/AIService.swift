@@ -26,6 +26,7 @@ struct IdeaValidation: Codable, Sendable {
 struct KillRecommendation: Codable, Sendable {
     let shouldKill: Bool
     let verdict: String
+    let severity: String
     let reasoning: String
     let signals: [String]
 }
@@ -173,7 +174,16 @@ class AIService {
         }
 
         let prompt = """
-        You are Forge AI. A developer is asking whether they should kill a project. Be direct.
+        You are Forge AI. A developer is asking whether they should kill a project. Be honest but fair.
+        DO NOT jump straight to "kill it". Projects need time. Use a graduated response:
+
+        SEVERITY GUIDE (use this):
+        - If last activity was < 7 days ago: almost always say KEEP GOING. A few days of inactivity is normal.
+        - If last activity was 7-14 days ago: suggest they revisit it soon, maybe re-prioritize, but don't panic.
+        - If last activity was 14-30 days ago: suggest PUT ON ICE -- it's drifting but not dead.
+        - If last activity was 30+ days ago: NOW you can consider KILL IT, but only if there are other red flags too.
+        - If the project is actively being built or has recent progress, lean toward KEEP GOING regardless.
+        - If there's a deadline approaching, factor that in -- urgency can revive a stalled project.
 
         PROJECT: \(project.name)
         DESCRIPTION: \(project.tagline)
@@ -186,15 +196,17 @@ class AIService {
         NOTES: \(project.notes.isEmpty ? "none" : String(project.notes.prefix(200)))
 
         Consider:
-        - Is this project stale/abandoned?
-        - Is it worth the developer's limited time?
-        - Is it going anywhere or just sitting in limbo?
-        - Would their time be better spent elsewhere?
+        - How long has it ACTUALLY been inactive? A few days is fine.
+        - Is the developer just busy or has this been genuinely abandoned?
+        - Does it have momentum signals (recent notes, tags, status changes)?
+        - Is it worth giving more time before making a drastic decision?
+        - Would their time be better spent elsewhere, or should they just push through?
 
         Respond ONLY with valid JSON:
         {
           "shouldKill": true or false,
-          "verdict": "KILL IT" or "KEEP GOING" or "PUT ON ICE",
+          "verdict": "KILL IT" or "KEEP GOING" or "PUT ON ICE" or "GIVE IT TIME",
+          "severity": "healthy" or "drifting" or "stale" or "dead",
           "reasoning": "2-3 sentence direct explanation",
           "signals": ["signal 1", "signal 2", "signal 3"]
         }
@@ -212,8 +224,14 @@ class AIService {
         var lines: [String] = []
         lines.append("""
         You are Forge AI acting as a weekly coach. Review this developer's entire workload.
-        Give a direct "state of the union" -- what moved, what stalled, what to kill, what to start.
-        Be opinionated. This should feel like a coach, not a dashboard.
+        Give a direct "state of the union" -- what moved, what stalled, what needs attention.
+        Be opinionated but fair. This should feel like a coach, not a hitman.
+        
+        IMPORTANT: Don't be trigger-happy with kill recommendations.
+        - If something has been inactive for just a few days, suggest re-engaging with it, not killing it.
+        - Only recommend killing projects that have been truly abandoned (30+ days inactive with no signs of life).
+        - For projects that are drifting (1-3 weeks inactive), suggest putting them on ice or re-prioritizing.
+        - Distinguish between "stalled and needs a push" vs "dead and should be buried".
         """)
 
         lines.append("\nPROJECTS:")
@@ -251,8 +269,8 @@ class AIService {
         {
           "summary": "2-3 sentence overall weekly take",
           "moved": ["things that made progress"],
-          "stalled": ["things that didn't move"],
-          "shouldKill": ["things you recommend killing/pausing and why"],
+          "stalled": ["things that stalled -- distinguish between 'needs a push' vs 'truly dead'"],
+          "shouldKill": ["ONLY things that are truly abandoned (30+ days inactive, no momentum). If nothing qualifies, return empty array. Do NOT recommend killing things that just need more time."],
           "shouldStart": ["things they should consider starting or accelerating"],
           "coachNote": "1-2 sentence motivational/strategic closing note"
         }

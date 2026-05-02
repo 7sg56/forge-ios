@@ -380,12 +380,21 @@ struct ProjectDetailView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack(spacing: 6) {
                         Circle()
-                            .fill(rec.shouldKill ? .red : Color(red: 0.3, green: 0.9, blue: 0.4))
+                            .fill(severityColor(rec.severity))
                             .frame(width: 8, height: 8)
                         Text(rec.verdict)
                             .font(.system(size: 13, weight: .black, design: .monospaced))
-                            .foregroundColor(rec.shouldKill ? .red : Color(red: 0.3, green: 0.9, blue: 0.4))
+                            .foregroundColor(severityColor(rec.severity))
                     }
+
+                    // Severity badge
+                    Text(rec.severity.uppercased())
+                        .font(.system(size: 9, weight: .bold, design: .monospaced))
+                        .foregroundColor(severityColor(rec.severity).opacity(0.8))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(severityColor(rec.severity).opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
 
                     Text(rec.reasoning)
                         .font(.system(size: 11, design: .monospaced))
@@ -397,7 +406,7 @@ struct ProjectDetailView: View {
                         ForEach(rec.signals, id: \.self) { signal in
                             HStack(spacing: 6) {
                                 Circle()
-                                    .fill(Color.red.opacity(0.4))
+                                    .fill(severityColor(rec.severity).opacity(0.4))
                                     .frame(width: 4, height: 4)
                                 Text(signal)
                                     .font(.system(size: 10, design: .monospaced))
@@ -416,13 +425,13 @@ struct ProjectDetailView: View {
         .background(
             HStack(spacing: 0) {
                 Rectangle()
-                    .fill(Color.red)
+                    .fill(killRec.map { severityColor($0.severity) } ?? Color(red: 0.4, green: 0.8, blue: 1.0))
                     .frame(width: 2)
                 Spacer()
             }
         )
         .background(
-            Color(red: 0.06, green: 0.02, blue: 0.02)
+            Color(white: 0.04)
         )
         .clipShape(
             UnevenRoundedRectangle(
@@ -453,6 +462,16 @@ struct ProjectDetailView: View {
                 killRecError = error.localizedDescription
             }
             isLoadingKillRec = false
+        }
+    }
+
+    func severityColor(_ severity: String) -> Color {
+        switch severity.lowercased() {
+        case "healthy":  return Color(red: 0.3, green: 0.9, blue: 0.4)
+        case "drifting": return Color(red: 1.0, green: 0.8, blue: 0.2)
+        case "stale":    return Color(red: 1.0, green: 0.5, blue: 0.2)
+        case "dead":     return .red
+        default:         return .white.opacity(0.4)
         }
     }
 }

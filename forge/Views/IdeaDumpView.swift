@@ -17,6 +17,7 @@ struct IdeaDumpView: View {
     @State private var showCapAlert = false
     @State private var capAlertMessage = ""
     @State private var scrollProxy: ScrollViewProxy?
+    @State private var addedItems: Set<String> = []
 
     var activeProjects: [Project] {
         allProjects.filter { $0.status != .killed }
@@ -282,19 +283,21 @@ struct IdeaDumpView: View {
                         .padding(.vertical, 10)
 
                         // Add button
+                        let isAdded = addedItems.contains("project:\(item.name)")
                         Button {
                             Haptic.light()
                             addProject(item)
                         } label: {
-                            Text("+ ADD")
+                            Text(isAdded ? "ADDED" : "+ ADD")
                                 .font(.system(size: 9, weight: .heavy, design: .monospaced))
-                                .foregroundColor(.white.opacity(0.5))
+                                .foregroundColor(isAdded ? Color(red: 0.3, green: 0.9, blue: 0.4).opacity(0.6) : .white.opacity(0.5))
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 6)
-                                .background(Color.white.opacity(0.06))
+                                .background(isAdded ? Color(red: 0.3, green: 0.9, blue: 0.4).opacity(0.08) : Color.white.opacity(0.06))
                                 .clipShape(RoundedRectangle(cornerRadius: 5))
                         }
                         .buttonStyle(ScaleButtonStyle())
+                        .disabled(isAdded)
                         .padding(.trailing, 12)
                     }
                 }
@@ -347,15 +350,17 @@ struct IdeaDumpView: View {
                     Spacer()
 
                     if let action = action {
+                        let isAdded = addedItems.contains("skill:\(item.name)")
                         Button {
                             Haptic.light()
                             action(item)
                         } label: {
-                            Image(systemName: "plus.circle.fill")
+                            Image(systemName: isAdded ? "checkmark.circle.fill" : "plus.circle.fill")
                                 .font(.system(size: 18))
-                                .foregroundColor(color.opacity(0.6))
+                                .foregroundColor(isAdded ? Color(red: 0.3, green: 0.9, blue: 0.4).opacity(0.6) : color.opacity(0.6))
                         }
                         .buttonStyle(ScaleButtonStyle())
+                        .disabled(isAdded)
                     }
                 }
                 .padding(.horizontal, 12)
@@ -387,6 +392,9 @@ struct IdeaDumpView: View {
     }
 
     func addProject(_ item: BrainDumpItem) {
+        let key = "project:\(item.name)"
+        guard !addedItems.contains(key) else { return }
+
         // Capacity gate: block if 3+ active projects
         guard activeProjects.count < 3 else {
             capAlertMessage = "Kill or ship something first. You already have 3 active projects."
@@ -404,25 +412,36 @@ struct IdeaDumpView: View {
         }()
         let p = Project(name: item.name, tagline: item.reason, priority: priority)
         context.insert(p)
+        addedItems.insert(key)
         Haptic.success()
     }
 
     func addSkill(_ item: BrainDumpItem) {
+        let key = "skill:\(item.name)"
+        guard !addedItems.contains(key) else { return }
+
         // Skills start as queued, so no active cap issue on add.
         // Cap is enforced when activating (in SkillDetailView).
         let s = SkillTrack(name: item.name, category: .other, notes: item.reason)
         context.insert(s)
+        addedItems.insert(key)
         Haptic.success()
     }
 
     func addAll() {
         guard let r = result else { return }
+        // Prevent double-tapping ADD ALL
+        guard addedItems.isEmpty || addedItems.count < (r.projects.count + r.skills.count) else { return }
+
         var addedProjects = 0
         let projectSlots = max(0, 3 - activeProjects.count)
 
         for item in r.projects {
+            let key = "project:\(item.name)"
+            guard !addedItems.contains(key) else { continue }
+
             if addedProjects >= projectSlots {
-                capAlertMessage = "Reached 3-project cap. \(r.projects.count - addedProjects) project(s) skipped."
+                capAlertMessage = "Reached 3-project cap. Some projects were skipped."
                 showCapAlert = true
                 break
             }
@@ -435,12 +454,16 @@ struct IdeaDumpView: View {
             }()
             let p = Project(name: item.name, tagline: item.reason, priority: priority)
             context.insert(p)
+            addedItems.insert(key)
             addedProjects += 1
         }
 
         for item in r.skills {
+            let key = "skill:\(item.name)"
+            guard !addedItems.contains(key) else { continue }
             let s = SkillTrack(name: item.name, category: .other, notes: item.reason)
             context.insert(s)
+            addedItems.insert(key)
         }
 
         if !showCapAlert {
